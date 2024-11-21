@@ -14,7 +14,7 @@
 <body>
 
 
-    <!-- Main Content -->
+    <!-- Main Contentqwq -->
     <div class="main-content">
         <h1>Welcome to Admin Dashboard</h1>
         <p>Here you can manage products, customers, lenders, and approvals.</p>
