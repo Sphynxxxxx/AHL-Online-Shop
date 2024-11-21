@@ -1,0 +1,40 @@
+CREATE DATABASE ahl_user;
+
+USE user_db;
+//TABLE FOR USER//
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL
+);
+
+
+//TABLE FOR PRODUCT//
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    image VARCHAR(255) DEFAULT NULL,
+    category VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+--------------------------------------------------------------------
+COMPOSER
+install COMPOSER "getcomposer.org."
+
+Locate the path directory 
+verify the installation "composer --version"
+Install PHPMailer via Composer "composer require phpmailer/phpmailer"
+
+---------------------------------------------------------------------
+
+

@@ -1,0 +1,66 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.main-content {
+    margin: auto;
+    padding: 20px;
+}
+.main-content h1 {
+    font-size: 2.5em;
+    color: #34495e;
+}
+.main-content p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+
+/* Quick Stats Cards */
+.quick-stats {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.card {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    padding: 20px;
+    width: 22%;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.card h3 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+.card p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+.card .btn {
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+.card .btn:hover {
+    background-color: #2980b9;
+}
+
+/* Helpful Tips Section */
+.help-tips {
+    margin-top: 50px;
+}
+.help-tips ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+.help-tips ul li {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
