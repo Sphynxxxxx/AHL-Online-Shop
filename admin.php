@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <!-- Helpful Tips Section -->
+        <!-- Helpful Tips Sectionjj -->
         <div class="help-tips">
             <h2>Quick Tips to Get Started</h2>
             <ul>
