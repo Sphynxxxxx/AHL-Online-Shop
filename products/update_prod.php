@@ -74,16 +74,16 @@ if (isset($_POST['update_product'])) {
          
          <select name="product_category" class="box">
             <option value="" disabled>Select Category</option>
-            <option value="notebooks" <?php echo $row['category'] == 'notebooks' ? 'selected' : ''; ?>>Notebooks</option>
-            <option value="paper" <?php echo $row['category'] == 'paper' ? 'selected' : ''; ?>>Papers</option>
-            <option value="scissors-glue" <?php echo $row['category'] == 'scissors-glue' ? 'selected' : ''; ?>>Scissors, Glue</option>
-            <option value="markers" <?php echo $row['category'] == 'markers' ? 'selected' : ''; ?>>Markers</option>
-            <option value="pencil" <?php echo $row['category'] == 'pencil' ? 'selected' : ''; ?>>Pencils, Sharpeners, Erasers</option>
-            <option value="art-supplies" <?php echo $row['category'] == 'art-supplies' ? 'selected' : ''; ?>>Art Supplies</option>
-            <option value="ruler-calculator" <?php echo $row['category'] == 'ruler-calculator' ? 'selected' : ''; ?>>Ruler, Calculator</option>
-            <option value="backpack" <?php echo $row['category'] == 'backpack' ? 'selected' : ''; ?>>Backpacks</option>
-            <option value="waterbottle" <?php echo $row['category'] == 'waterbottle' ? 'selected' : ''; ?>>Water Bottles</option>
-            <option value="lunchbox" <?php echo $row['category'] == 'lunchbox' ? 'selected' : ''; ?>>Lunchbox</option>
+            <option value="Notebooks" <?php echo $row['category'] == 'Notebooks' ? 'selected' : ''; ?>>Notebooks</option>
+            <option value="Papers" <?php echo $row['category'] == 'Papers' ? 'selected' : ''; ?>>Papers</option>
+            <option value="Scissors, Glue" <?php echo $row['category'] == 'Scissors, Glue' ? 'selected' : ''; ?>>Scissors, Glue</option>
+            <option value="Markers" <?php echo $row['category'] == 'Markers' ? 'selected' : ''; ?>>Markers</option>
+            <option value="Pencils, Sharpeners, Erasers" <?php echo $row['category'] == 'Pencils, Sharpeners, Erasers' ? 'selected' : ''; ?>>Pencils, Sharpeners, Erasers</option>
+            <option value="Art Supplies" <?php echo $row['category'] == 'Art Supplies' ? 'selected' : ''; ?>>Art Supplies</option>
+            <option value="Ruler, Calculator" <?php echo $row['category'] == 'Ruler, Calculator' ? 'selected' : ''; ?>>Ruler, Calculator</option>
+            <option value="Backpacks" <?php echo $row['category'] == 'Backpacks' ? 'selected' : ''; ?>>Backpacks</option>
+            <option value="Water Bottles" <?php echo $row['category'] == 'Water Bottles' ? 'selected' : ''; ?>>Water Bottles</option>
+            <option value="Lunchbox" <?php echo $row['category'] == 'Lunchbox' ? 'selected' : ''; ?>>Lunchbox</option>
          </select>
 
          <input type="file" accept="image/png, image/jpeg, image/jpg" name="product_image" class="box">

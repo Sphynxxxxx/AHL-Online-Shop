@@ -199,7 +199,7 @@
             .then(data => {
                 if (data.success) {
                     alert(data.message); 
-                    window.location.href = 'customer.php'; 
+                    window.location.href = 'products/customer.php'; 
                 } else {
                     alert(data.message); 
                 }

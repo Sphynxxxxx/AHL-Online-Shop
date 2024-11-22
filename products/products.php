@@ -1,12 +1,12 @@
 <?php
-@include '../connections/config.php'; // Include the database connection file
+@include '../connections/config.php'; 
 
 if(isset($_POST['add_product'])){
 
    $product_name = $_POST['product_name'];
    $product_price = $_POST['product_price'];
-   $product_quantity = $_POST['product_quantity']; // New field for quantity
-   $product_category = $_POST['product_category']; // New field for category
+   $product_quantity = $_POST['product_quantity']; 
+   $product_category = $_POST['product_category']; 
    $product_image = $_FILES['product_image']['name'];
    $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
    $product_image_folder = 'product_pics/'.$product_image;
@@ -73,16 +73,16 @@ if(isset($message)){
          <input type="number" placeholder="Enter Quantity" name="product_quantity" class="box"> <!-- New input for quantity -->
          <select name="product_category" class="box">
             <option value="" disabled selected>Select Category</option>
-            <option value="notebooks">Notebooks</option>
-            <option value="paper">Papers</option>
-            <option value="scissors-glue">Scissors, Glue</option>
-            <option value="markers">Markers</option>
-            <option value="pencil">Pencils, Sharpeners, Erasers</option>
-            <option value="art-supplies">Art Supplies</option>
-            <option value="ruler-calculator">Ruler, Calculator</option>
-            <option value="backpack">Backpacks</option>
-            <option value="waterbottle">Water Bottles</option>
-            <option value="lunchbox">Lunchbox</option>
+            <option value="Notebooks">Notebooks</option>
+            <option value="Papers">Papers</option>
+            <option value="Scissors, Glue">Scissors, Glue</option>
+            <option value="Markers">Markers</option>
+            <option value="Pencils, Sharpeners, Erasers">Pencils, Sharpeners, Erasers</option>
+            <option value="Art Supplies">Art Supplies</option>
+            <option value="Ruler, Calculator">Ruler, Calculator</option>
+            <option value="Backpacks">Backpacks</option>
+            <option value="Water Bottles">Water Bottles</option>
+            <option value="Lunchbox">Lunchbox</option>
          </select> <!-- New dropdown for category -->
          <input type="file" accept="image/png, image/jpeg, image/jpg" name="product_image" class="box">
          <input type="submit" class="btn" name="add_product" value="Add Product">
