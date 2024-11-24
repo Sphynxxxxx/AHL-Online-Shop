@@ -1,5 +1,5 @@
 <?php
-// Admin Dashboard PHP File
+
 @include 'connections/config.php';
 ?>
 
@@ -19,7 +19,7 @@
         <h1>Welcome to Admin Dashboard</h1>
         <p>Here you can manage products, customers, and approvals.</p>
 
-        <!-- Quick Stats Cards -->
+        
         <div class="quick-stats">
             <div class="card">
                 <h3>Products</h3>
@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <!-- Helpful Tips Sectionjj -->
+        
         <div class="help-tips">
             <h2>Quick Tips to Get Started</h2>
             <ul>
@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    <!-- Styling -->
+    
     
 
 </body>
