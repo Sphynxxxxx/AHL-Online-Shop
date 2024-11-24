@@ -17,13 +17,13 @@
     <!-- Main Contentqwq -->
     <div class="main-content">
         <h1>Welcome to Admin Dashboard</h1>
-        <p>Here you can manage products, customers, lenders, and approvals.</p>
+        <p>Here you can manage products, customers, and approvals.</p>
 
         <!-- Quick Stats Cards -->
         <div class="quick-stats">
             <div class="card">
                 <h3>Products</h3>
-                <p>Manage and approve product listings.</p>
+                <p>Manage and Update product listings.</p>
                 <a href="products/products.php" class="btn">View Products</a>
             </div>
             <div class="card">

@@ -16,7 +16,7 @@ body {
 }
 
 .sidebar {
-  background-color: #27ae60;
+  background-color: #603F26;
   width: auto;
   padding: 10px;
 }
@@ -61,6 +61,7 @@ body {
 .main-content {
   flex-grow: 1;
   padding: 20px;
+  background-color: #ffffff;
 }
 
 header {
@@ -93,11 +94,16 @@ header input {
   flex-wrap: wrap;
 }
 
+button {
+  color: white; 
+}
+
+
 .menu-categories button {
   padding: 10px 20px;
   border-radius: 5px;
   border: none;
-  background-color: #F2F4F7;
+  background-color: #74512D;
   cursor: pointer;
   margin-bottom: 10px;
 }
@@ -110,8 +116,8 @@ header input {
 }
 
 .menu-item {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: #F8F4E1;
+  border: 1px solid #74512D;
   border-radius: 10px;
   text-align: center;
   padding: 15px;
@@ -142,7 +148,7 @@ header input {
 }
 
 .menu-item button {
-  background-color: #27ae60;
+  background-color: #74512D;
   color: white;
   border: none;
   padding: 10px 20px;

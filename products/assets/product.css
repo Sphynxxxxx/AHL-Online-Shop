@@ -127,6 +127,24 @@ html{
    background: var(--black);
 }
 
+.back-button-container {
+   margin-top: 20px;
+   text-align: center;
+}
+
+.back-button {
+   background-color: #4CAF50;
+   color: white;
+   padding: 10px 20px;
+   text-decoration: none;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 16px;
+}
+
+.back-button:hover {
+   background-color: #45a049;
+}
 
 
 

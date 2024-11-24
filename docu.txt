@@ -1,30 +1,53 @@
 CREATE DATABASE ahl_user;
 
-USE user_db;
-//TABLE FOR USER//
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
+-- Create users table
+CREATE TABLE customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(100),
+    email VARCHAR(100),
     password VARCHAR(255) NOT NULL,
     address VARCHAR(255) NOT NULL,
-    contact_number VARCHAR(15) NOT NULL
-);
+    contact_number VARCHAR(15) NOT NULL,
+    images VARCHAR(255),
+    status ENUM('pending', 'approved', 'declined') DEFAULT 'pending'
+) ENGINE=InnoDB;
 
-
-//TABLE FOR PRODUCT//
-
+-- Create products table
 CREATE TABLE products (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(100),
     description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
+    price DECIMAL(10, 2),
     quantity INT NOT NULL DEFAULT 0,
-    image VARCHAR(255) DEFAULT NULL,
+    image VARCHAR(100),
     category VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+
+CREATE TABLE `orders` (
+    `order_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `customer_email` VARCHAR(255) NOT NULL,
+    `order_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    original_price INT NOT NULL DEFAULT 0,
+     quantity INT NOT NULL DEFAULT 0,
+    `subtotal` DECIMAL(10, 2) NOT NULL,
+    `total` DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (`order_id`)
 );
+
+CREATE TABLE `order_items` (
+    `order_item_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `order_id` INT(11) NOT NULL,
+    `product_name` VARCHAR(255) NOT NULL,
+    `quantity` INT(11) NOT NULL,
+    `price` DECIMAL(10, 2) NOT NULL,
+    `product_image` VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`order_item_id`),
+    FOREIGN KEY (`order_id`) REFERENCES `orders`(`order_id`) ON DELETE CASCADE
+);
+InnoDB;
+
 
 
 --------------------------------------------------------------------

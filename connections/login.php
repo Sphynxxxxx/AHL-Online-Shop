@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pass = $_POST['password'];
 
     
-    $stmt = $conn->prepare("SELECT password, name, status FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT password, customer_name, status FROM customers WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (password_verify($pass, $hashed_password)) {
             session_regenerate_id();
             $_SESSION['email'] = $email; 
-            $_SESSION['name'] = $name; 
+            $_SESSION['customer_name'] = $name; 
             echo json_encode(['success' => true, 'message' => "Login successful!"]);
             exit();
         } else {

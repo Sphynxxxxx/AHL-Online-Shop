@@ -56,37 +56,23 @@ function filterProductsByName(query) {
   });
 }
 
-// Open the pickup status modal
-function openPickupStatusModal() {
-    document.getElementById("modal-overlay").style.display = "block";
-    document.getElementById("pickup-status-modal").style.display = "block";
+function expandImage(img) {
+  const modal = document.getElementById('imageModal');
+  const expandedImage = document.getElementById('expandedImage');
+  expandedImage.src = img.src; // Set the modal image source to the clicked image
+  modal.style.display = 'flex'; // Show the modal
+}
+
+function closeModal() {
+  const modal = document.getElementById('imageModal');
+  modal.style.display = 'none'; // Hide the modal
+}
+
+function logout() {
+  // Display a confirmation dialog
+  const confirmLogout = confirm("Are you sure you want to log out?");
+  if (confirmLogout) {
+      // Redirect to the logout PHP script
+      window.location.href = "../index.php";
   }
-  
-  // Close the pickup status modal
-  function closePickupStatusModal() {
-    document.getElementById("modal-overlay").style.display = "none";
-    document.getElementById("pickup-status-modal").style.display = "none";
-  }
-  
-// Place the order and update the status
-function placeOrder() {
-    setTimeout(() => {
-      alert("Order placed successfully!");
-  
-      // Reload page to reflect new status
-      window.location.href = "customer.php";
-    }, 500);
-  }
-  
-  // Open the Pick Up Status modal
-  function openPickupStatusModal() {
-    document.getElementById("modal-overlay").style.display = "block";
-    document.getElementById("pickup-status-modal").style.display = "block";
-  }
-  
-  // Close the Pick Up Status modal
-  function closePickupStatusModal() {
-    document.getElementById("modal-overlay").style.display = "none";
-    document.getElementById("pickup-status-modal").style.display = "none";
-  }
-  
+}
