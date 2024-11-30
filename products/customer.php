@@ -1,111 +1,27 @@
 <?php
 session_start();
-
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+include '../connections/config.php';
 
 if (!isset($_SESSION['email'])) {
-    header("Location: customer.php");
+    header("Location: customer.php"); 
     exit();
 }
 
-@include '../connections/config.php'; 
+// Fetch products
+// Fetch products
+$sql = "SELECT 
+            product_id, 
+            category, 
+            product_name, 
+            description, 
+            price, 
+            quantity, 
+            image, 
+            created_at 
+        FROM products";
+$result = $conn->query($sql);
 
-
-if (!$conn) {
-    die("Database connection failed: " . mysqli_connect_error());
-}
-
-
-$userEmail = mysqli_real_escape_string($conn, $_SESSION['email']);
-$sql = "SELECT customer_name FROM customers WHERE email = '$userEmail'";
-
-// Execute query and check for errors
-$result = mysqli_query($conn, $sql);
-if (!$result) {
-    die("Query failed: " . mysqli_error($conn)); 
-}
-
-$userName = 'User';
-
-// Fetch user data
-if (mysqli_num_rows($result) > 0) {
-    $user = mysqli_fetch_assoc($result);
-    $userName = $user['customer_name'];
-}
-
-// Fetch products from the database
-$category = isset($_GET['category']) ? mysqli_real_escape_string($conn, $_GET['category']) : 'all';
-$searchQuery = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
-
-$sql = "SELECT * FROM products WHERE 1";
-if ($category !== 'all') {
-    $sql .= " AND category = '$category'";
-}
-if ($searchQuery !== '') {
-    $sql .= " AND name LIKE '%$searchQuery%'";
-}
-
-// Execute the product query
-$result = mysqli_query($conn, $sql);
-if (!$result) {
-    die("Product query failed: " . mysqli_error($conn));
-}
-
-// Initialize orderSummary in session if not set
-if (!isset($_SESSION['orderSummary'])) {
-    $_SESSION['orderSummary'] = [];
-}
-
-// Handle product addition to cart
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
-  $productId = intval($_POST['product_id']);
-  $selectedQuantity = intval($_POST['quantity']);
-
-  // Validate input values
-  if ($selectedQuantity <= 0) {
-      die("Invalid quantity selected.");
-  }
-
-  // Fetch product details from the database
-  $orderQuery = "SELECT * FROM products WHERE product_id = $productId";
-  $orderResult = mysqli_query($conn, $orderQuery);
-  if (!$orderResult) {
-      die("Order query failed: " . mysqli_error($conn)); 
-  }
-
-  $product = mysqli_fetch_assoc($orderResult);
-
-  // Check if product is available
-  if (!$product || $selectedQuantity > $product['quantity']) {
-      die("Invalid product or quantity exceeds stock.");
-  }
-
-  // Check if product already exists in the cart
-  $exists = false;
-  foreach ($_SESSION['orderSummary'] as &$item) {
-      if ($item['product_id'] === $productId) {
-          // Update the quantity if it already exists
-          $item['selected_quantity'] += $selectedQuantity;
-          $exists = true;
-          break;
-      }
-  }
-
-  // If product doesn't exist, add it to the cart
-  if (!$exists) {
-      $product['selected_quantity'] = $selectedQuantity;
-      $product['status'] = 'Pending'; // Add pickup status
-      $_SESSION['orderSummary'][] = $product;
-  }
-}
-
-
-// Show the order summary if it's available
-$orderSummary = $_SESSION['orderSummary'];
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,190 +29,293 @@ $orderSummary = $_SESSION['orderSummary'];
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AHL Online Store</title>
   <link rel="stylesheet" href="../connections/Assets/customer.css">
-  <link rel="stylesheet" href="assets\cart.css">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+
+  <style>
+    
+  </style>
 </head>
 <body>
   <div class="container">
+    <!-- Sidebar -->
     <div class="sidebar">
       <nav>
         <ul>
-          <li><a href="profile.php"><i class="fa-solid fa-user"></i></a></li>
-          <li><a href="products/cart.php"><i class="fa-solid fa-cart-shopping"></i></a></li>
-          <li><a href="view_succesful_orders.php"><i class="fa-solid fa-truck"></i></a></li>
-          <li><a href="javascript:void(0)" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></a></li>
+          <li> <a href="CusProfile.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-user"></i></a>
+          <li> <a href="History.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-clipboard-list"></i></a>
+          <li> <a href="cart.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-cart-shopping"></i></i></a>
+          <li> <a href="cart.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-right-from-bracket"></i></i></i></a>
         </ul>
       </nav>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content">
       <header>
-        <div class="user-welcome">
-          <h1>AHL Online Store</h1>
-          <p>Welcome, <?php echo htmlspecialchars($userName); ?>!</p>
+        <div class="logo">
+          <img src="../connections/Assets/images/logo.png" alt="Farming Tool and Rental System Logo">
+          <div class="logo-text">
+            <h1>AHL Online Store</h1>
+            <p>Welcome, <?php echo htmlspecialchars($_SESSION['customer_name']); ?>!</p>
         </div>
-        <input type="text" placeholder="Search Product here..." id="search-bar">
+        <input id="search-box" type="text" placeholder="Search Product here...">
+        <div class="table-info"></div>
       </header>
 
-      <!-- Category Buttons -->
+      <!-- Categories Buttons -->
       <div class="menu-categories">
-        <button onclick="window.location.href='?category=all'">All</button>
-        <button onclick="window.location.href='?category=Notebooks'">Notebooks</button>
-        <button onclick="window.location.href='?category=Papers'">Papers</button>
-        <button onclick="window.location.href='?category=Scissors, Glue'">Scissors, Glue</button>
-        <button onclick="window.location.href='?category=Markers'">Markers</button>
-        <button onclick="window.location.href='?category=Pencils, Sharpeners, Erasers'">Pencils, Sharpeners, Erasers</button>
-        <button onclick="window.location.href='?category=Art Supplies'">Art Supplies</button>
-        <button onclick="window.location.href='?category=Ruler, Calculator'">Ruler, Calculator</button>
-        <button onclick="window.location.href='?category=Backpacks'">Backpacks</button>
-        <button onclick="window.location.href='?category=Water Bottles'">Water Bottles</button>
-        <button onclick="window.location.href='?category=Lunchbox'">Lunchbox</button>
+          <button data-category="all">All</button>
+          <button data-category="Notebooks">Notebooks</button>
+          <button data-category="Papers">Papers</button>
+          <button data-category="Scissors, Glue">Scissors, Glue</button>
+          <button data-category="Markers">Markers</button>
+          <button data-category="Pencils, Sharpeners, Erasers">Pencils, Sharpeners, Erasers</button>
+          <button data-category="Art Supplies">Art Supplies</button>
+          <button data-category="Ruler, Calculator">Ruler, Calculator</button>
+          <button data-category="Backpacks">Backpacks</button>
+          <button data-category="Water Bottles">Water Bottles</button>
+          <button data-category="Lunchbox">Lunchbox</button>
       </div>
 
+      <!-- Menu Items -->
       <div class="menu-items" id="menu-items">
-          <?php if (mysqli_num_rows($result) > 0): ?>
-              <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                  <div class="menu-item <?php echo ($row['quantity'] <= 0) ? 'out-of-stock' : ''; ?>">
-                      <?php if ($row['quantity'] <= 0): ?>
-                          <div class="out-of-stock-label">Out of Stock</div>
-                      <?php endif; ?>
-                      <div class="product-category"><?php echo htmlspecialchars($row['category']); ?></div>
-                      <img 
-                          src="product_pics/<?php echo htmlspecialchars($row['image']); ?>" 
-                          alt="<?php echo htmlspecialchars($row['product_name']); ?>" 
-                          class="expandable-image" 
-                          onclick="expandImage(this)">
-                      <h3><?php echo htmlspecialchars($row['product_name']); ?></h3>
-                      <p>PHP <?php echo htmlspecialchars($row['price']); ?></p>
-                      <p>Available: <?php echo htmlspecialchars($row['quantity']); ?> in stock</p>
-                      <form method="POST">
-                          <div class="quantity-control">
-                              <button type="button" onclick="decreaseQuantity(<?php echo htmlspecialchars($row['product_id']); ?>)">-</button>
-                              <input 
-                                  type="number" 
-                                  name="quantity" 
-                                  value="0" 
-                                  min="0" 
-                                  max="<?php echo htmlspecialchars($row['quantity']); ?>" 
-                                  id="quantity-<?php echo htmlspecialchars($row['product_id']); ?>" 
-                                  onchange="updateQuantity(<?php echo htmlspecialchars($row['product_id']); ?>)">
-                              <button type="button" onclick="increaseQuantity(<?php echo htmlspecialchars($row['product_id']); ?>)">+</button>
-                          </div>
-                          <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($row['product_id']); ?>">
-                          <button type="submit" name="place_order" <?php echo ($row['quantity'] <= 0) ? 'disabled' : ''; ?>>Buy Now</button>
-                      </form>
+        <?php
+        if ($result->num_rows > 0) {
+          while ($row = $result->fetch_assoc()) {
+              $category = htmlspecialchars($row['category']);
+              $productName = htmlspecialchars($row['product_name']);
+              $description = htmlspecialchars($row['description']);
+              $price = number_format($row['price'], 2);
+              $image = htmlspecialchars($row['image']);
+              $availableQuantity = $row['quantity'];
+              $outOfStockClass = $availableQuantity <= 0 ? 'out-of-stock' : '';
+              $outOfStockLabel = $availableQuantity <= 0 ? '<div class="out-of-stock-label">Out of Stock</div>' : '';
+              ?>
+              <div class="item <?php echo $outOfStockClass; ?>" 
+                  data-id="<?php echo $row['product_id']; ?>" 
+                  data-category="<?php echo $row['category']; ?>" 
+                  data-name="<?php echo $productName; ?>" 
+                  data-price="<?php echo $price; ?>" 
+                  data-quantity="<?php echo $availableQuantity; ?>">
+                  <?php echo $outOfStockLabel; ?>
+                  <p><strong>Category:</strong> <?php echo $category; ?></p>
+                  <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
+                  <!--<p><strong>Description:</strong> <?php echo $description; ?></p> -->
+                  <img src="product_pics/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='product_pics/default_image.jpg';">
+                  <h3 class="item-price" style="color: red;">₱<?php echo $price; ?></h3>
+                  <p><strong>Available:</strong> <?php echo $availableQuantity; ?></p>
+                  <div class="quantity-control">
+                      <button class="minus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>-</button>
+                      <span class="quantity">0</span>
+                      <button class="plus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>+</button>
+                      <button class="rent-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Rent</button>
                   </div>
-              <?php endwhile; ?>
-          <?php else: ?>
-              <p>No products found for your search or category.</p>
-          <?php endif; ?>
-      </div>
-    </div>
-
-    <div class="image-modal" id="imageModal">
-        <button class="close-modal" onclick="closeModal()">×</button>
-        <img id="expandedImage" src="" alt="Expanded View">
-    </div>
-
-    <!-- Order Summary Section -->
-    <div class="order-summary" id="order-summary" style="display: <?php echo !empty($orderSummary) ? 'block' : 'none'; ?>;">
-      <h3>Order Summary</h3>
-      <div id="order-list">
-        <?php if (!empty($orderSummary)): ?>
-          <?php 
-          $subtotal = 0;
-          foreach ($orderSummary as $item): 
-            $totalPrice = $item['price'] * $item['selected_quantity'];
-            $subtotal += $totalPrice;
-          ?>
-            <div class="order-item">
-              <img src="product_pics/<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>" style="width: 50px; height: auto;">
-              <span><?php echo htmlspecialchars($item['product_name']); ?> (x<?php echo htmlspecialchars($item['selected_quantity']); ?>)</span>
-              <span>PHP <?php echo number_format($totalPrice, 2); ?></span>
-            </div>
-          <?php endforeach; ?>
-          <div class="total">
-            <p>Subtotal</p>
-            <p id="subtotal">PHP <?php echo number_format($subtotal, 2); ?></p>
-          </div>
-        <?php endif; ?>
-      </div>
-      <button class="check-out" onclick="openCheckoutModal()">Check Out</button>
-    </div>
-  </div>
-
-  <!-- Modal for Checkout -->
-  
-  <div class="modal-overlay" id="modal-overlay"></div>
-  <div class="checkout-modal" id="checkout-modal">
-    <div class="modal-content">
-      <h3>Confirm Your Order</h3>
-      <br>
-      <p>Pick Up</p>
-      <br>
-      <form action="process_order.php" method="POST">
-        <div id="modal-order-list">
-          <?php if (!empty($orderSummary)): ?>
-            <?php 
-            $subtotal = 0;
-            foreach ($orderSummary as $item): 
-              $totalPrice = $item['price'] * $item['selected_quantity'];
-              $subtotal += $totalPrice;
-            ?>
-              <div class="order-item">
-                <img src="product_pics/<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>" style="width: 50px; height: auto;">
-                <span><?php echo htmlspecialchars($item['product_name']); ?> (x<?php echo htmlspecialchars($item['selected_quantity']); ?>)</span>
-                <span>PHP <?php echo number_format($totalPrice, 2); ?></span>
-                <!-- Hidden fields to store order data -->
-                <input type="hidden" name="product_names[]" value="<?php echo htmlspecialchars($item['product_name']); ?>">
-                <input type="hidden" name="quantities[]" value="<?php echo $item['selected_quantity']; ?>">
-                <input type="hidden" name="prices[]" value="<?php echo $item['price']; ?>">
-                <input type="hidden" name="product_images[]" value="<?php echo htmlspecialchars($item['image']); ?>"> <!-- Store image file name -->
               </div>
-            <?php endforeach; ?>
-            <div class="total">
-              <p>Subtotal</p>
-              <p id="modal-subtotal">PHP <?php echo number_format($subtotal, 2); ?></p>
-              <input type="hidden" name="subtotal" value="<?php echo $subtotal; ?>">
-            </div>
-          <?php endif; ?>
+              <?php
+          }
+      } else {
+          echo "<p>No products available</p>";
+      }
+        $conn->close();
+        ?>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+        <h3>Order Summary</h3>
+
+        <!-- Order List Section -->
+        <div id="order-list"></div>
+
+        <!-- Delivery Method Section -->
+        <div class="delivery-method">
+            <h4>Delivery Method</h4>
+            <label>
+            <input type="radio" name="delivery-method" value="pickup" checked> 
+            Pick Up
+            </label>
         </div>
-        <button type="submit">Place Order</button>
-      </form>
-    </div>
 
-    <div class="image-modal" id="imageModal">
-        <button class="close-modal" onclick="closeModal()">×</button>
-        <img id="expandedImage" src="" alt="Expanded View">
-    </div>
-  </div>
+        <!-- Total Calculation Section -->
+        <div class="total">
+            <p>Subtotal</p>
+            <p id="subtotal">₱0.00</p>
+        </div>
+        <div class="total" id="shipping-fee-container">
+            <p>Shipping Fee</p>
+            <p id="shippingfee">₱0.00</p> 
+        </div>
+        <div class="total">
+            <p><strong>Total</strong></p>
+            <p id="total-amount"><strong>₱0.00</strong></p>
+        </div>
 
+        <!-- Place Order Button -->
+        <button class="place-order">Place Order</button>
+        </div>
 
-  <script src="customer.js"></script>
+</div>
+    <script src="customer.js"></script>
   <script>
-    // Open the checkout modal
-    function openCheckoutModal() {
-      document.getElementById("modal-overlay").style.display = "block";
-      document.getElementById("checkout-modal").style.display = "block";
-    }
+      document.addEventListener('DOMContentLoaded', () => {
+            // Add event listener for order summary and item rent
+            const orderList = document.getElementById('order-list');
+            const subtotalElement = document.getElementById('subtotal');
+            const totalAmountElement = document.getElementById('total-amount');
+            const placeOrderButton = document.querySelector('.place-order');
+            
+            let orderItems = []; 
 
-    // Close the checkout modal
-    function closeCheckoutModal() {
-      document.getElementById("modal-overlay").style.display = "none";
-      document.getElementById("checkout-modal").style.display = "none";
-    }
+            // Update the order summary dynamically
+            function updateOrderSummary() {
+                orderList.innerHTML = '';
+                let subtotal = 0;
 
-    // Place the order and update the page
-    function placeOrder() {
-      setTimeout(() => {
-        alert("Order placed successfully!");
+                orderItems.forEach(item => {
+                    const { id, name, price, quantity, image } = item;
+                    subtotal += price * quantity;
 
-        // Reload page to reflect new status
-        window.location.href = "customer.php";
-      }, 500);
-    }
+                    const orderItem = document.createElement('div');
+                    orderItem.className = 'order-item';
+                    orderItem.innerHTML = `
+                        <div class="order-item-image">
+                            <img src="product_pics/${image}" alt="${name}" onerror="this.src='uploaded_img/default_image.jpg';">
+                        </div>
+                        <div class="order-item-details">
+                            <p><strong>${name}</strong></p>
+                            <p>₱${price.toFixed(2)} x ${quantity} = ₱${(price * quantity).toFixed(2)}</p>
+                        </div>
+                    `;
+                    orderList.appendChild(orderItem);
+                });
+
+                // Update totals
+                subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+                totalAmountElement.textContent = `₱${subtotal.toFixed(2)}`;
+            }
+
+            // Add item to the order summary when Rent button is clicked
+            document.querySelectorAll('.rent-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const itemElement = event.target.closest('.item');
+                    const itemId = itemElement.dataset.id;
+                    const itemName = itemElement.dataset.name;
+                    const itemPrice = parseFloat(itemElement.dataset.price);
+                    const itemImage = itemElement.querySelector('img').src.split('/').pop(); 
+
+                    const quantityElement = itemElement.querySelector('.quantity');
+                    const quantity = parseInt(quantityElement.textContent);
+
+                    if (quantity <= 0) {
+                        alert('Please select a quantity greater than 0.');
+                        return;
+                    }
+
+                    // Check if item already exists in the order list
+                    const existingItem = orderItems.find(item => item.id === itemId);
+
+                    if (existingItem) {
+                        // Update quantity if already in the list
+                        existingItem.quantity += quantity;
+                    } else {
+                        // Add new item to the list
+                        orderItems.push({
+                            id: itemId,
+                            name: itemName,
+                            price: itemPrice,
+                            quantity,
+                            image: itemImage,
+                        });
+                    }
+
+                    // Reset quantity in the product listing
+                    quantityElement.textContent = '0';
+
+                    // Update the order summary display
+                    updateOrderSummary();
+                });
+            });
+
+            // Handle quantity adjustment buttons
+            document.querySelectorAll('.minus-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const quantityElement = event.target.closest('.quantity-control').querySelector('.quantity');
+                    const currentQuantity = parseInt(quantityElement.textContent);
+
+                    if (currentQuantity > 0) {
+                        quantityElement.textContent = currentQuantity - 1;
+                    }
+                });
+            });
+
+            document.querySelectorAll('.plus-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const itemElement = event.target.closest('.item');
+                    const quantityElement = itemElement.querySelector('.quantity');
+                    const currentQuantity = parseInt(quantityElement.textContent);
+                    const availableQuantity = parseInt(itemElement.dataset.quantity);
+
+                    if (currentQuantity < availableQuantity) {
+                        quantityElement.textContent = currentQuantity + 1;
+                    }
+
+                    // Disable the plus button if the quantity exceeds the available stock
+                    if (currentQuantity + 1 >= availableQuantity) {
+                        event.target.setAttribute('disabled', 'true');
+                    }
+                });
+            });
+
+            // Re-enable the plus button if the quantity is reduced below the available stock
+            document.querySelectorAll('.quantity').forEach(quantityElement => {
+                quantityElement.addEventListener('DOMSubtreeModified', () => {
+                    const itemElement = quantityElement.closest('.item');
+                    const currentQuantity = parseInt(quantityElement.textContent);
+                    const availableQuantity = parseInt(itemElement.dataset.quantity);
+                    const plusButton = itemElement.querySelector('.plus-btn');
+
+                    if (currentQuantity < availableQuantity) {
+                        plusButton.removeAttribute('disabled');
+                    }
+                });
+            });
+
+            // Handle order placement
+            placeOrderButton.addEventListener('click', () => {
+                if (orderItems.length === 0) {
+                    alert('Please add items to your order.');
+                    return;
+                }
+
+                // Send order data to the server
+                fetch('saveOrder.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        orderDetails: orderItems
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'order_details.php'; 
+                    } else {
+                        alert(data.message);  
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        });
+
+
 
   </script>
 </body>
 </html>
-

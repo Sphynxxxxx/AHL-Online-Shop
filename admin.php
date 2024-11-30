@@ -27,9 +27,9 @@
                 <a href="products/products.php" class="btn">View Products</a>
             </div>
             <div class="card">
-                <h3>Customers</h3>
-                <p>Manage customer registrations and profiles.</p>
-                <a href="AdminCustomerReg.php" class="btn">View Customers</a>
+                <h3>Orders</h3>
+                <p>Track the orders.</p>
+                <a href="products/delivery.php" class="btn">View Customers</a>
             </div>
             <div class="card">
                 <h3>Approvals</h3>

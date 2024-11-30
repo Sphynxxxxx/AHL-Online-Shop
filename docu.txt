@@ -2,7 +2,7 @@ CREATE DATABASE ahl_user;
 
 -- Create users table
 CREATE TABLE customers (
-    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     customer_name VARCHAR(100),
     email VARCHAR(100),
     password VARCHAR(255) NOT NULL,
@@ -24,39 +24,44 @@ CREATE TABLE products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-
-CREATE TABLE `orders` (
-    `order_id` INT(11) NOT NULL AUTO_INCREMENT,
-    `customer_email` VARCHAR(255) NOT NULL,
-    `order_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    original_price INT NOT NULL DEFAULT 0,
-     quantity INT NOT NULL DEFAULT 0,
-    `subtotal` DECIMAL(10, 2) NOT NULL,
-    `total` DECIMAL(10, 2) NOT NULL,
-    PRIMARY KEY (`order_id`)
+-- Create orders table
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,   
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    delivery_method ENUM('pickup', 'cod') NOT NULL DEFAULT 'pickup', 
+    reference_number VARCHAR(255) NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,  
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
-CREATE TABLE `order_items` (
-    `order_item_id` INT(11) NOT NULL AUTO_INCREMENT,
-    `order_id` INT(11) NOT NULL,
-    `product_name` VARCHAR(255) NOT NULL,
-    `quantity` INT(11) NOT NULL,
-    `price` DECIMAL(10, 2) NOT NULL,
-    `product_image` VARCHAR(255) NOT NULL,
-    PRIMARY KEY (`order_item_id`),
-    FOREIGN KEY (`order_id`) REFERENCES `orders`(`order_id`) ON DELETE CASCADE
+-- Create order_details table
+CREATE TABLE order_details (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    shippingfee DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE, 
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
-InnoDB;
+
 
 
 
 --------------------------------------------------------------------
+
 COMPOSER
 install COMPOSER "getcomposer.org."
 
 Locate the path directory 
 verify the installation "composer --version"
-Install PHPMailer via Composer "composer require phpmailer/phpmailer"
+Install PHPMailer via Composer (install in terminal)
+
+npm install
+composer require phpmailer/phpmailer
+composer require tecnickcom/tcpdf
 
 ---------------------------------------------------------------------
 
