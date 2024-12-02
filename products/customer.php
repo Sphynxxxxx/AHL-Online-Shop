@@ -7,8 +7,37 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-// Fetch products
-// Fetch products
+$customer_email = $_SESSION['email'];
+
+// Fetch the customer_id based on the email
+$sqlCustomer = "SELECT id FROM customers WHERE email = ?";
+$stmt = $conn->prepare($sqlCustomer);
+$stmt->bind_param("s", $customer_email);
+$stmt->execute();
+$resultCustomer = $stmt->get_result();
+
+if ($resultCustomer->num_rows === 0) {
+    echo "<p>Customer not found. Please log in again. <a href='login.php'>Login</a></p>";
+    exit;
+}
+
+$rowCustomer = $resultCustomer->fetch_assoc();
+$customer_id = $rowCustomer['id'];
+
+// Fetch the total quantity of items in the cart
+$sqlCartCount = "
+    SELECT SUM(quantity) AS total_quantity
+    FROM carts
+    WHERE customer_id = ?
+";
+$stmt = $conn->prepare($sqlCartCount);
+$stmt->bind_param("i", $customer_id);
+$stmt->execute();
+$resultCartCount = $stmt->get_result();
+$rowCartCount = $resultCartCount->fetch_assoc();
+$cartCount = $rowCartCount['total_quantity'] ? $rowCartCount['total_quantity'] : 0;
+
+// Fetch all products
 $sql = "SELECT 
             product_id, 
             category, 
@@ -20,20 +49,18 @@ $sql = "SELECT
             created_at 
         FROM products";
 $result = $conn->query($sql);
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AHL Online Store</title>
-  <link rel="stylesheet" href="../connections/Assets/customer.css">
+  <link rel="stylesheet" href="../connections/Assets/customer.css?v=1.0">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-
   <style>
-    
+    /* Add your custom styles here */
   </style>
 </head>
 <body>
@@ -42,10 +69,15 @@ $result = $conn->query($sql);
     <div class="sidebar">
       <nav>
         <ul>
-          <li> <a href="CusProfile.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-user"></i></a>
-          <li> <a href="History.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-clipboard-list"></i></a>
-          <li> <a href="cart.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-cart-shopping"></i></i></a>
-          <li> <a href="cart.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-right-from-bracket"></i></i></i></a>
+          <li><a href="profile.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-user"></i></a></li>
+          <li><a href="History.php" class="icon-link" aria-label="History"><i class="fa-solid fa-clipboard-list"></i></a></li>
+          <li>
+            <a href="cart.php" class="icon-link" aria-label="Cart">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <span id="cart-count" class="cart-count"><?php echo $cartCount; ?></span>
+            </a>
+          </li>
+          <li><a href="../connections/logout.php" class="icon-link" aria-label="Logout"><i class="fa-solid fa-right-from-bracket"></i></a></li>
         </ul>
       </nav>
     </div>
@@ -58,9 +90,9 @@ $result = $conn->query($sql);
           <div class="logo-text">
             <h1>AHL Online Store</h1>
             <p>Welcome, <?php echo htmlspecialchars($_SESSION['customer_name']); ?>!</p>
+          </div>
         </div>
         <input id="search-box" type="text" placeholder="Search Product here...">
-        <div class="table-info"></div>
       </header>
 
       <!-- Categories Buttons -->
@@ -83,11 +115,11 @@ $result = $conn->query($sql);
         <?php
         if ($result->num_rows > 0) {
           while ($row = $result->fetch_assoc()) {
+              $image = htmlspecialchars($row['image']);
               $category = htmlspecialchars($row['category']);
               $productName = htmlspecialchars($row['product_name']);
               $description = htmlspecialchars($row['description']);
               $price = number_format($row['price'], 2);
-              $image = htmlspecialchars($row['image']);
               $availableQuantity = $row['quantity'];
               $outOfStockClass = $availableQuantity <= 0 ? 'out-of-stock' : '';
               $outOfStockLabel = $availableQuantity <= 0 ? '<div class="out-of-stock-label">Out of Stock</div>' : '';
@@ -99,17 +131,17 @@ $result = $conn->query($sql);
                   data-price="<?php echo $price; ?>" 
                   data-quantity="<?php echo $availableQuantity; ?>">
                   <?php echo $outOfStockLabel; ?>
+                  <img src="product_pics/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='product_pics/default_image.jpg';">
                   <p><strong>Category:</strong> <?php echo $category; ?></p>
                   <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
-                  <!--<p><strong>Description:</strong> <?php echo $description; ?></p> -->
-                  <img src="product_pics/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='product_pics/default_image.jpg';">
                   <h3 class="item-price" style="color: red;">₱<?php echo $price; ?></h3>
                   <p><strong>Available:</strong> <?php echo $availableQuantity; ?></p>
                   <div class="quantity-control">
                       <button class="minus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>-</button>
                       <span class="quantity">0</span>
                       <button class="plus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>+</button>
-                      <button class="rent-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Rent</button>
+                      <button class="rent-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Place Order</button>
+                      <button class="add-to-cart-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Add to Cart</button>
                   </div>
               </div>
               <?php
@@ -117,63 +149,52 @@ $result = $conn->query($sql);
       } else {
           echo "<p>No products available</p>";
       }
-        $conn->close();
-        ?>
-      </div>
+      ?>
     </div>
+  </div>
 
-    <!-- Order Summary -->
-    <div class="order-summary">
-        <h3>Order Summary</h3>
-
-        <!-- Order List Section -->
-        <div id="order-list"></div>
-
-        <!-- Delivery Method Section -->
-        <div class="delivery-method">
-            <h4>Delivery Method</h4>
-            <label>
-            <input type="radio" name="delivery-method" value="pickup" checked> 
-            Pick Up
-            </label>
-        </div>
-
-        <!-- Total Calculation Section -->
-        <div class="total">
-            <p>Subtotal</p>
-            <p id="subtotal">₱0.00</p>
-        </div>
-        <div class="total" id="shipping-fee-container">
-            <p>Shipping Fee</p>
-            <p id="shippingfee">₱0.00</p> 
-        </div>
-        <div class="total">
-            <p><strong>Total</strong></p>
-            <p id="total-amount"><strong>₱0.00</strong></p>
-        </div>
-
-        <!-- Place Order Button -->
-        <button class="place-order">Place Order</button>
-        </div>
-
+  <!-- Order Summary -->
+  <div class="order-summary">
+      <h3>Order Summary</h3>
+      <div id="order-list"></div>
+      <div class="delivery-method">
+          <h4>Delivery Method</h4>
+          <label>
+          <input type="radio" name="delivery-method" value="pickup" checked> 
+          Pick Up
+          </label>
+      </div>
+      <div class="total">
+          <p>Subtotal</p>
+          <p id="subtotal">₱0.00</p>
+      </div>
+      <div class="total" id="shipping-fee-container">
+          <p>Shipping Fee</p>
+          <p id="shippingfee">₱0.00</p> 
+      </div>
+      <div class="total">
+          <p><strong>Total</strong></p>
+          <p id="total-amount"><strong>₱0.00</strong></p>
+      </div>
+      <button class="place-order">Check Out</button>
+  </div>
 </div>
     <script src="customer.js"></script>
   <script>
       document.addEventListener('DOMContentLoaded', () => {
-            // Add event listener for order summary and item rent
             const orderList = document.getElementById('order-list');
             const subtotalElement = document.getElementById('subtotal');
             const totalAmountElement = document.getElementById('total-amount');
             const placeOrderButton = document.querySelector('.place-order');
-            
-            let orderItems = []; 
+
+            let orderItems = [];
 
             // Update the order summary dynamically
             function updateOrderSummary() {
                 orderList.innerHTML = '';
                 let subtotal = 0;
 
-                orderItems.forEach(item => {
+                orderItems.forEach((item, index) => {
                     const { id, name, price, quantity, image } = item;
                     subtotal += price * quantity;
 
@@ -187,6 +208,9 @@ $result = $conn->query($sql);
                             <p><strong>${name}</strong></p>
                             <p>₱${price.toFixed(2)} x ${quantity} = ₱${(price * quantity).toFixed(2)}</p>
                         </div>
+                        <div class="order-item-actions">
+                            <button class="remove-item-btn" data-index="${index}" data-id="${id}" data-quantity="${quantity}">Remove</button>
+                        </div>
                     `;
                     orderList.appendChild(orderItem);
                 });
@@ -194,7 +218,76 @@ $result = $conn->query($sql);
                 // Update totals
                 subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
                 totalAmountElement.textContent = `₱${subtotal.toFixed(2)}`;
+
+                // Add remove functionality
+                document.querySelectorAll('.remove-item-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const index = parseInt(event.target.dataset.index);
+                        const productId = event.target.dataset.id;
+                        const removedQuantity = parseInt(event.target.dataset.quantity);
+
+                        // Remove item from the array
+                        orderItems.splice(index, 1);
+
+                        // Reset product quantity in the main list
+                        const productElement = document.querySelector(`.item[data-id="${productId}"]`);
+                        if (productElement) {
+                            const availableQuantity = parseInt(productElement.dataset.quantity);
+                            const currentQuantityElement = productElement.querySelector('.quantity');
+                            currentQuantityElement.textContent = '0';
+
+                            // Enable the plus button if it was disabled
+                            const plusButton = productElement.querySelector('.plus-btn');
+                            plusButton.removeAttribute('disabled');
+                        }
+
+                        // Refresh the summary
+                        updateOrderSummary();
+                    });
+                });
             }
+
+            // Search functionality
+            const searchBox = document.getElementById('search-box');
+            const menuItems = document.querySelectorAll('.item');
+
+            searchBox.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                menuItems.forEach(item => {
+                    const productName = item.dataset.name.toLowerCase();
+                    const category = item.dataset.category.toLowerCase();
+
+                    if (productName.includes(searchTerm) || category.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+
+            // Category filtering
+            const categoryButtons = document.querySelectorAll('.menu-categories button');
+
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const selectedCategory = this.dataset.category;
+
+                    // Remove active class from all buttons
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    menuItems.forEach(item => {
+                        const itemCategory = item.dataset.category;
+
+                        if (selectedCategory === 'all' || itemCategory === selectedCategory) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
 
             // Add item to the order summary when Rent button is clicked
             document.querySelectorAll('.rent-btn').forEach(button => {
@@ -203,7 +296,7 @@ $result = $conn->query($sql);
                     const itemId = itemElement.dataset.id;
                     const itemName = itemElement.dataset.name;
                     const itemPrice = parseFloat(itemElement.dataset.price);
-                    const itemImage = itemElement.querySelector('img').src.split('/').pop(); 
+                    const itemImage = itemElement.querySelector('img').src.split('/').pop();
 
                     const quantityElement = itemElement.querySelector('.quantity');
                     const quantity = parseInt(quantityElement.textContent);
@@ -237,6 +330,7 @@ $result = $conn->query($sql);
                     updateOrderSummary();
                 });
             });
+
 
             // Handle quantity adjustment buttons
             document.querySelectorAll('.minus-btn').forEach(button => {
@@ -295,16 +389,16 @@ $result = $conn->query($sql);
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         orderDetails: orderItems
                     }),
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.href = 'order_details.php'; 
+                        window.location.href = 'order_details.php';
                     } else {
-                        alert(data.message);  
+                        alert(data.message);
                     }
                 })
                 .catch(error => {
@@ -313,6 +407,8 @@ $result = $conn->query($sql);
                 });
             });
         });
+
+
 
 
 

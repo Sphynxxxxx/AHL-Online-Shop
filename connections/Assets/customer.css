@@ -52,13 +52,14 @@ body {
 }
 
 #search-box {
-  width: 600px;
+  display: flex;
+  width: 50%;
   padding: 10px;
-  margin-left: 30px;
+  margin: auto;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  
+  justify-content: center;
 }
 
 .table-info {
@@ -66,7 +67,7 @@ body {
 }
 
 .sidebar {
-  background-color: #27ae60;
+  background-color: #2d1d1d;
   width: 60px;
   padding: 20px;
   display: flex;
@@ -135,8 +136,19 @@ body {
 
 .main-content {
   flex-grow: 1;
-  padding: 10px 0 0 100px;  
+  padding: 10px 0 0 100px;
+  
+  background-image: url('images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
+
+
+
+
+  
 
 
 header {
@@ -174,10 +186,11 @@ header input {
   flex-wrap: wrap;
   gap: 20px;
   justify-content: flex-start;
+  
 }
 
 .item {
-  background-color: #fff;
+  background-color: #F6EEE0;
   border: 1px solid #ddd;
   border-radius: 10px;
   text-align: center;
@@ -187,15 +200,22 @@ header input {
   align-items: center;
   width: auto;
   height: auto;
-  
+  max-height: 10%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
+  transition: all 0.3s ease; 
 }
 
+
+.item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  transform: translateY(-5px);
+}
+
+
 .item img {
-  width: auto;
-  height: auto;
-  max-height: 200px;
-  max-width: 200px;
-  object-fit: cover; 
+  width: 200px;
+  height: 200px;
+  object-fit: fill; 
   border-radius: 10px;
   
 }
@@ -216,12 +236,16 @@ header input {
   margin-top: auto;
 }
 
+.rent-btn{
 
+}
 .order-summary {
   width: 300px;
-  background-color: #F7F9FC;
+  background-color: #F6EEE0;
   padding: 20px;
+  box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1); 
 }
+
 
 .order-summary h3 {
   margin-bottom: 20px;
@@ -252,7 +276,7 @@ header input {
 }
 
 .place-order {
-  background-color: #27ae60;
+  background-color: #2d1d1d;
   color: white;
   border: none;
   padding: 15px;
@@ -277,7 +301,7 @@ header input {
   padding: 5px 10px;
   cursor: pointer;
   border: 1px solid #ccc;
-  background-color: #27ae60;
+  background-color: #2d1d1d;
 }
 
 

@@ -1,0 +1,128 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #F6EEE0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+}
+
+/* Profile Container */
+.profile-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+}
+
+.profile-container h3 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Profile Picture */
+.profile-picture img {
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.profile-picture img:hover {
+    transform: scale(1.05);
+}
+
+/* Form Inputs */
+input[type="text"],
+input[type="email"],
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus {
+    border-color: #4b3030;
+    background-color: #fff;
+    outline: none;
+}
+
+/* Submit Button */
+input[type="submit"] {
+    background-color: #2d1d1d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #4b3030;
+}
+
+/* Home Button */
+a.btn {
+    display: inline-block;
+    background-color: #f2f2f2;
+    color: #333;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin-top: 20px;
+}
+
+a.btn:hover {
+    background-color: #4b3030;
+    color: white;
+}
+
+
+label {
+    font-size: 16px;
+    color: #777;
+    text-align: left;
+    display: block;
+    margin-bottom: 5px;
+}
+
+
+.message {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #eaf7e4;
+    color: #388e3c;
+    border: 1px solid #388e3c;
+    border-radius: 8px;
+    text-align: center;
+}
