@@ -89,40 +89,109 @@ while ($row = $result->fetch_assoc()) {
     <title>Order Details - AHL Online Store</title>
     <link rel="stylesheet" href="../connections/Assets/customer.css">
     <style>
-        .order-confirmation {
-            max-width: 800px;
-            margin: 20px auto;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F6EEE0;
+            margin: 0;
             padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .order-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .order-confirmation {
+            max-width: 600px;
+            background-color: white;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            color: #333;
+        }
+
+        .order-header {
+            text-align: center;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
-        .order-details-section {
-            margin-top: 20px;
+
+        .order-header h1 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
         }
+
+        .customer-info,
+        .order-details-section,
+        .order-summary {
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 16px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
         .order-item {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             padding: 10px;
-            background-color: #fff;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-item img {
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+            border: 1px solid #ccc;
             border-radius: 5px;
         }
-        .order-item img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            margin-right: 20px;
+
+        .order-item div {
+            flex-grow: 1;
         }
+
         .order-summary {
             text-align: right;
+            border-top: 2px dashed #ccc;
+            padding-top: 10px;
+        }
+
+        .order-summary p {
+            margin: 5px 0;
+        }
+
+        .order-actions {
+            text-align: center;
             margin-top: 20px;
         }
+
+        .order-actions .btn {
+            text-decoration: none;
+            background-color: #2d1d1d;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .order-actions .btn:hover {
+            background-color: #0056b3;
+        }
+
     </style>
 </head>
 <body>

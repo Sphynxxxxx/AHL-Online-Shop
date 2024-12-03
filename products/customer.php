@@ -71,6 +71,7 @@ $result = $conn->query($sql);
         <ul>
           <li><a href="profile.php" class="icon-link" aria-label="Profile"><i class="fa-solid fa-user"></i></a></li>
           <li><a href="History.php" class="icon-link" aria-label="History"><i class="fa-solid fa-clipboard-list"></i></a></li>
+          <li><a href="aboutUs.php" class="icon-link" aria-label="About Us"><i class="fa-solid fa-users"></i></a></li>
           <li>
             <a href="cart.php" class="icon-link" aria-label="Cart">
               <i class="fa-solid fa-cart-shopping"></i>
@@ -144,6 +145,7 @@ $result = $conn->query($sql);
                       <button class="add-to-cart-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Add to Cart</button>
                   </div>
               </div>
+
               <?php
           }
       } else {
@@ -154,7 +156,9 @@ $result = $conn->query($sql);
   </div>
 
   <!-- Order Summary -->
+   
   <div class="order-summary">
+      <button class="close-summary-btn">✖</button>
       <h3>Order Summary</h3>
       <div id="order-list"></div>
       <div class="delivery-method">
@@ -167,10 +171,6 @@ $result = $conn->query($sql);
       <div class="total">
           <p>Subtotal</p>
           <p id="subtotal">₱0.00</p>
-      </div>
-      <div class="total" id="shipping-fee-container">
-          <p>Shipping Fee</p>
-          <p id="shippingfee">₱0.00</p> 
       </div>
       <div class="total">
           <p><strong>Total</strong></p>
@@ -406,6 +406,20 @@ $result = $conn->query($sql);
                     alert('An error occurred. Please try again.');
                 });
             });
+
+            document.querySelectorAll('.rent-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const orderSummary = document.querySelector('.order-summary');
+                    orderSummary.style.display = 'block'; // Show the order summary
+                });
+            });
+
+            document.querySelector('.close-summary-btn').addEventListener('click', () => {
+                const orderSummary = document.querySelector('.order-summary');
+                orderSummary.style.display = 'none'; // Hide the order summary
+            });
+
+            
         });
 
 

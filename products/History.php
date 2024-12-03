@@ -16,6 +16,7 @@ if (!isset($_SESSION['email'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Order History</title>
     <link rel="stylesheet" href="assets\history.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <?php
@@ -56,7 +57,7 @@ if ($resultOrders->num_rows === 0) {
     exit;
 }
 
-echo "<a href='customer.php'><button>Back to Dashboard</button></a>";
+echo "<a href='customer.php'><i class='fa-solid fa-house'></i></a>";
 echo "<h1>Your Order History</h1>";
 
 while ($order = $resultOrders->fetch_assoc()) {

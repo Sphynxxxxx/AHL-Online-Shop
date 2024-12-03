@@ -60,54 +60,60 @@ if (isset($_GET['remove'])) {
     <link rel="stylesheet" href="assets/cart.css?v=1.0">
 </head>
 <body>
-    <h1>Your Cart</h1>
+    <div class="cart-header">
+        <a href="customer.php" class="btn-back-dashboard"><i class="fa-solid fa-house"></i></a>
+        <h1>Your Cart</h1>
+    </div>
 
     <?php if ($result->num_rows > 0): ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>Select</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
+        <form id="checkout-form">
+            <table>
+                <thead>
                     <tr>
-                        <td>
-                            <input type="checkbox" name="checkout_items[]" value="<?php echo $row['id']; ?>" class="select-checkbox">
-                        </td>
-                        <td>
-                            <div class="product-details">
-                                <img class="product-image" src="product_pics/<?php echo htmlspecialchars($row['image']); ?>" alt="Product">
-                                <div class="product-info">
-                                    <p class="product-name"><?php echo htmlspecialchars($row['product_name']); ?></p>
-                                    <p class="product-price">Price: ₱<?php echo number_format($row['price'], 2); ?></p>
-                                    <a href="cart.php?remove=<?php echo $row['id']; ?>" class="remove-btn"><i class="fa-solid fa-trash"></i></a>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="number" min="1" value="<?php echo $row['quantity']; ?>" class="quantity-input" readonly>
-                        </td>
-                        <td>₱<?php echo number_format($row['price'] * $row['quantity'], 2); ?></td>
+                        <th>Select</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
                     </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="checkout_items[]" value="<?php echo $row['id']; ?>" class="select-checkbox">
+                            </td>
+                            <td>
+                                <div class="product-details">
+                                    <img class="product-image" src="product_pics/<?php echo htmlspecialchars($row['image']); ?>" alt="Product">
+                                    <div class="product-info">
+                                        <p class="product-name"><?php echo htmlspecialchars($row['product_name']); ?></p>
+                                        <p class="product-price">Price: ₱<?php echo number_format($row['price'], 2); ?></p>
+                                        <a href="cart.php?remove=<?php echo $row['id']; ?>" class="remove-btn"><i class="fa-solid fa-trash"></i></a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="number" min="1" value="<?php echo $row['quantity']; ?>" class="quantity-input" readonly>
+                            </td>
+                            <td>₱<?php echo number_format($row['price'] * $row['quantity'], 2); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
 
-        <div class="summary">
-            <p id="summary-items">Total Items: 0</p>
-            <p id="summary-subtotal">Subtotal: ₱0.00</p>
-            <p id="summary-total">Total Price: ₱0.00</p>
-        </div>
+            <div class="summary">
+                <p id="summary-items">Total Items: 0</p>
+                <p id="summary-subtotal">Subtotal: ₱0.00</p>
+                <p id="summary-total">Total Price: ₱0.00</p>
+                <button class="place-order">Check Out</button>
+            </div>
+        
+        </form>
 
     <?php else: ?>
         <p>Your cart is empty.</p>
     <?php endif; ?>
 
-    <p><a href="customer.php" class="continue-shopping">Continue Shopping</a></p>
 
     <?php
     // Close the statement and connection
@@ -118,42 +124,87 @@ if (isset($_GET['remove'])) {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const checkboxes = document.querySelectorAll('input[name="checkout_items[]"]');
+            const placeOrderButton = document.querySelector('.place-order');
             const summaryItems = document.getElementById('summary-items');
             const summarySubtotal = document.getElementById('summary-subtotal');
             const summaryTotal = document.getElementById('summary-total');
 
-            // Function to update subtotal and total
-            function updateOrderSummary() {
-                let totalItems = 0;
+            // Function to prepare selected items and calculate the total
+            function getSelectedItems() {
+                const selectedItems = [];
                 let subtotal = 0;
+                let totalQuantity = 0;
 
                 checkboxes.forEach((checkbox) => {
                     if (checkbox.checked) {
                         const row = checkbox.closest('tr');
                         const quantity = parseInt(row.querySelector('.quantity-input').value, 10);
-                        const price = parseFloat(
-                            row.querySelector('td:nth-child(4)').textContent.replace('₱', '').replace(',', '')
-                        );
+                        const price = parseFloat(row.querySelector('td:nth-child(4)').textContent.replace('₱', '').replace(',', ''));
+                        const totalPrice = price * quantity;
 
-                        totalItems += quantity;
-                        subtotal += price;
+                        selectedItems.push({
+                            product_id: parseInt(checkbox.value),
+                            quantity: quantity,
+                            price: price,
+                        });
+
+                        subtotal += totalPrice;
+                        totalQuantity += quantity;
                     }
                 });
 
-                // Update summary display
-                summaryItems.textContent = `Total Items: ${totalItems}`;
+                // Update the order summary in the UI
+                summaryItems.textContent = `Total Items: ${totalQuantity}`;
                 summarySubtotal.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
                 summaryTotal.textContent = `Total Price: ₱${subtotal.toFixed(2)}`;
+
+                return { selectedItems, subtotal };
             }
 
-            // Attach event listeners to checkboxes
-            checkboxes.forEach((checkbox) => {
-                checkbox.addEventListener('change', updateOrderSummary);
+            // Checkout button event listener
+            placeOrderButton.addEventListener('click', () => {
+                const { selectedItems, subtotal } = getSelectedItems();
+                
+                if (selectedItems.length === 0) {
+                    alert('Please add items to your order.');
+                    return;
+                }
+
+                // Send order data to the server
+                fetch('saveOrder2.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderDetails: selectedItems
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'order_confirmation.php';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
             });
 
-            // Initialize the summary
-            updateOrderSummary();
+            // Event listener for checkboxes to update summary dynamically
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    getSelectedItems(); // Update summary when checkbox is clicked
+                });
+            });
+
+            // Initial update of summary
+            getSelectedItems();
         });
+
     </script>
 </body>
 </html>

@@ -1,0 +1,76 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const checkboxes = document.querySelectorAll('input[name="checkout_items[]"]');
+    const placeOrderButton = document.querySelector('.place-order');
+    const summaryItems = document.getElementById('summary-items');
+    const summarySubtotal = document.getElementById('summary-subtotal');
+    const summaryTotal = document.getElementById('summary-total');
+    const deliveryMethodSelect = document.getElementById('delivery-method'); // Assuming there's a dropdown for delivery method
+
+    // Function to prepare selected items and calculate the total
+    function getSelectedItems() {
+        const selectedItems = [];
+        let subtotal = 0;
+        let totalQuantity = 0;
+
+        checkboxes.forEach((checkbox) => {
+            if (checkbox.checked) {
+                const row = checkbox.closest('tr');
+                const quantity = parseInt(row.querySelector('.quantity-input').value, 10);
+                const price = parseFloat(row.querySelector('td:nth-child(4)').textContent.replace('₱', '').replace(',', ''));
+                const totalPrice = price * quantity;
+
+                selectedItems.push({
+                    product_id: parseInt(checkbox.value),
+                    quantity: quantity,
+                    price: price,
+                });
+
+                subtotal += totalPrice;
+                totalQuantity += quantity;
+            }
+        });
+
+        // Update the order summary in the UI
+        summaryItems.textContent = `Total Items: ${totalQuantity}`;
+        summarySubtotal.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
+        summaryTotal.textContent = `Total Price: ₱${subtotal.toFixed(2)}`;
+
+        return { selectedItems, subtotal };
+    }
+
+    // Checkout button event listener
+    placeOrderButton.addEventListener('click', function () {
+        const { selectedItems, subtotal } = getSelectedItems();
+        if (selectedItems.length === 0) {
+            alert('Please select at least one item to checkout.');
+            return;
+        }
+
+        // Get the selected delivery method from the dropdown
+        const deliveryMethod = deliveryMethodSelect ? deliveryMethodSelect.value : 'pickup'; // Default to 'pickup' if no selection
+
+        // Send order data to the server
+        fetch('saveOrder2.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderDetails: selectedItems,
+                deliveryMethod: deliveryMethod,
+                subtotal: subtotal
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // Redirect to the order confirmation page with the order ID
+                    window.location.href = `order_confirmation.php?orderId=${data.orderId}`;
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred while placing your order.');
+            });
+    });
+});

@@ -124,5 +124,10 @@
         }
     }
 
+    document.querySelector('.close-summary-btn').addEventListener('click', () => {
+        document.querySelector('.order-summary').style.display = 'none';
+    });
+      
+    
 
     

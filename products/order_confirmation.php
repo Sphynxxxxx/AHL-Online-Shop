@@ -1,0 +1,54 @@
+<?php
+// order_confirmation.php
+
+// Include your database connection
+include('db_connection.php');
+
+// Get the order ID from the URL
+$orderId = isset($_GET['orderId']) ? (int)$_GET['orderId'] : 0;
+
+if ($orderId > 0) {
+    // Fetch the order details from the database
+    $stmt = $conn->prepare("SELECT * FROM orders2 WHERE id = ?");
+    $stmt->bind_param("i", $orderId);
+    $stmt->execute();
+    $orderResult = $stmt->get_result();
+    $order = $orderResult->fetch_assoc();
+    $stmt->close();
+
+    // Fetch the order items from the 'order_items2' table
+    $stmt = $conn->prepare("SELECT oi.*, p.product_name FROM order_items2 oi JOIN products p ON oi.product_id = p.product_id WHERE oi.order_id = ?");
+    $stmt->bind_param("i", $orderId);
+    $stmt->execute();
+    $itemsResult = $stmt->get_result();
+    $items = [];
+    while ($row = $itemsResult->fetch_assoc()) {
+        $items[] = $row;
+    }
+    $stmt->close();
+
+    // Generate the receipt HTML
+    echo "<h1>Order Receipt</h1>";
+    echo "<p>Order ID: " . $order['id'] . "</p>";
+    echo "<p>Delivery Method: " . $order['delivery_method'] . "</p>";
+    echo "<p>Order Date: " . $order['order_date'] . "</p>";
+    echo "<h2>Items</h2>";
+    echo "<table>";
+    echo "<tr><th>Product</th><th>Quantity</th><th>Price</th><th>Total</th></tr>";
+    $total = 0;
+    foreach ($items as $item) {
+        $itemTotal = $item['quantity'] * $item['price'];
+        echo "<tr>
+                <td>" . htmlspecialchars($item['product_name']) . "</td>
+                <td>" . $item['quantity'] . "</td>
+                <td>₱" . number_format($item['price'], 2) . "</td>
+                <td>₱" . number_format($itemTotal, 2) . "</td>
+              </tr>";
+        $total += $itemTotal;
+    }
+    echo "</table>";
+    echo "<h3>Total Price: ₱" . number_format($total, 2) . "</h3>";
+} else {
+    echo "<p>Invalid order ID.</p>";
+}
+?>

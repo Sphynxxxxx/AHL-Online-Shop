@@ -13,20 +13,16 @@ h1 {
     margin-bottom: 20px;
 }
 
-a button {
-    background-color: #2d1d1d;
-    color: #fff;
+a {
+    color: #2d1d1d;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    font-size: 40px;
     transition: background-color 0.3s ease;
     margin-bottom: 20px;
 }
 
-a button:hover {
-    background-color: #6d4a4a;
+a:hover {
+    color: #6d4a4a;
 }
 
 /* Order Summary Styling */
@@ -92,6 +88,8 @@ hr {
     border: 1px solid #ddd;
     margin: 20px 0;
 }
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
