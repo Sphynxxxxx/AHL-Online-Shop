@@ -27,19 +27,6 @@ if ($resultCustomer->num_rows === 0) {
 $rowCustomer = $resultCustomer->fetch_assoc();
 $customer_id = $rowCustomer['id'];
 
-// Fetch the total quantity of items in the cart
-$sqlCartCount = "
-    SELECT SUM(quantity) AS total_quantity
-    FROM carts
-    WHERE customer_id = ?
-";
-$stmt = $conn->prepare($sqlCartCount);
-$stmt->bind_param("i", $customer_id);
-$stmt->execute();
-$resultCartCount = $stmt->get_result();
-$rowCartCount = $resultCartCount->fetch_assoc();
-$cartCount = $rowCartCount['total_quantity'] ? $rowCartCount['total_quantity'] : 0;
-
 // Fetch the cart items for the logged-in customer
 $sql = "
     SELECT c.id, p.product_name, p.price, p.image, c.quantity, (p.price * c.quantity) AS total_price
@@ -62,87 +49,65 @@ if (isset($_GET['remove'])) {
     header("Location: cart.php");
     exit();
 }
-
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Cart</title>
-    <link rel="stylesheet" href="assets/cart.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/cart.css?v=1.0">
 </head>
 <body>
     <h1>Your Cart</h1>
 
-    <ul>
-        <li>
-            <a href="cart.php" class="icon-link" aria-label="Cart">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span id="cart-count" class="cart-count"><?php echo $cartCount; ?></span> 
-            </a>
-        </li>
-    </ul>
-
     <?php if ($result->num_rows > 0): ?>
-        <form method="POST" action="saveOrder.php">
-            <table>
-                <thead>
+        <table>
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
-                        <th>Product Image</th>
-                        <th>Product Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total Price</th>
-                        <th>Remove</th>
-                        <th>Select for Checkout</th>
+                        <td>
+                            <input type="checkbox" name="checkout_items[]" value="<?php echo $row['id']; ?>" class="select-checkbox">
+                        </td>
+                        <td>
+                            <div class="product-details">
+                                <img class="product-image" src="product_pics/<?php echo htmlspecialchars($row['image']); ?>" alt="Product">
+                                <div class="product-info">
+                                    <p class="product-name"><?php echo htmlspecialchars($row['product_name']); ?></p>
+                                    <p class="product-price">Price: ₱<?php echo number_format($row['price'], 2); ?></p>
+                                    <a href="cart.php?remove=<?php echo $row['id']; ?>" class="remove-btn"><i class="fa-solid fa-trash"></i></a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" min="1" value="<?php echo $row['quantity']; ?>" class="quantity-input" readonly>
+                        </td>
+                        <td>₱<?php echo number_format($row['price'] * $row['quantity'], 2); ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    $totalAmount = 0;
-                    while ($row = $result->fetch_assoc()): 
-                        $totalAmount += $row['total_price'];
-                    ?>
-                        <tr>
-                            <td>
-                                <img class="product-image" 
-                                    src="product_pics/<?php echo htmlspecialchars($row['image']); ?>" 
-                                    alt="Product Name: <?php echo htmlspecialchars($row['product_name']); ?>" 
-                                    style="width:50px;height:50px;">
-                            </td>
-                            <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                            <td>₱<?php echo number_format($row['price'], 2); ?></td>
-                            <td><?php echo $row['quantity']; ?></td>
-                            <td>₱<?php echo number_format($row['total_price'], 2); ?></td>
-                            <td>
-                                <a href="cart.php?remove=<?php echo $row['id']; ?>" class="remove-btn">Remove</a>
-                            </td>
-                            <td>
-                                <input type="checkbox" name="checkout_items[]" value="<?php echo $row['id']; ?>"> 
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </form>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
 
-        <div class="order-summary" id="order-summary" style="display: none;">
-            <h3>Order Summary</h3>
+        <div class="summary">
             <p id="summary-items">Total Items: 0</p>
-            <p id="summary-price" class="total-price">Total Price: ₱0.00</p>
-            <button class="place-order">Place Order</button>
+            <p id="summary-subtotal">Subtotal: ₱0.00</p>
+            <p id="summary-total">Total Price: ₱0.00</p>
         </div>
-
-
 
     <?php else: ?>
         <p>Your cart is empty.</p>
     <?php endif; ?>
 
-    <p><a href="customer.php">Continue Shopping</a></p>
+    <p><a href="customer.php" class="continue-shopping">Continue Shopping</a></p>
 
     <?php
     // Close the statement and connection
@@ -153,85 +118,35 @@ if (isset($_GET['remove'])) {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const checkboxes = document.querySelectorAll('input[name="checkout_items[]"]');
-            const summaryDiv = document.getElementById('order-summary');
             const summaryItems = document.getElementById('summary-items');
-            const summaryPrice = document.getElementById('summary-price');
-            const placeOrderButton = document.querySelector('.place-order');
+            const summarySubtotal = document.getElementById('summary-subtotal');
+            const summaryTotal = document.getElementById('summary-total');
 
+            // Function to update subtotal and total
             function updateOrderSummary() {
                 let totalItems = 0;
-                let totalPrice = 0;
-                let hasSelection = false;
+                let subtotal = 0;
 
                 checkboxes.forEach((checkbox) => {
                     if (checkbox.checked) {
-                        hasSelection = true;
                         const row = checkbox.closest('tr');
-                        const quantity = parseInt(row.querySelector('td:nth-child(4)').textContent, 10);
+                        const quantity = parseInt(row.querySelector('.quantity-input').value, 10);
                         const price = parseFloat(
-                            row.querySelector('td:nth-child(5)').textContent.replace('₱', '').replace(',', '')
+                            row.querySelector('td:nth-child(4)').textContent.replace('₱', '').replace(',', '')
                         );
 
                         totalItems += quantity;
-                        totalPrice += price;
+                        subtotal += price;
                     }
                 });
 
-                if (totalItems > 0) {
-                    summaryDiv.style.display = 'block';
-                    summaryItems.textContent = `Total Items: ${totalItems}`;
-                    summaryPrice.textContent = `Total Price: ₱${totalPrice.toFixed(2)}`;
-                } else {
-                    summaryDiv.style.display = 'none';
-                }
-
-                placeOrderButton.disabled = !hasSelection; // Enable/disable button based on selection
+                // Update summary display
+                summaryItems.textContent = `Total Items: ${totalItems}`;
+                summarySubtotal.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
+                summaryTotal.textContent = `Total Price: ₱${subtotal.toFixed(2)}`;
             }
 
-            placeOrderButton.addEventListener('click', function () {
-                const selectedProducts = [];
-                checkboxes.forEach((checkbox) => {
-                    if (checkbox.checked) {
-                        const row = checkbox.closest('tr');
-                        const productId = parseInt(checkbox.value, 10);
-                        const quantity = parseInt(row.querySelector('td:nth-child(4)').textContent, 10);
-                        const price = parseFloat(
-                            row.querySelector('td:nth-child(3)').textContent.replace('₱', '').replace(',', '')
-                        );
-
-                        selectedProducts.push({ id: productId, quantity, price });
-                    }
-                });
-
-                if (selectedProducts.length > 0) {
-                    // Send AJAX request to saveOrder.php
-                    fetch('saveOrder2.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            orderDetails: selectedProducts,
-                            deliveryMethod: 'pickup', // Example, can be changed dynamically
-                        }),
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            if (data.success) {
-                                alert(data.message);
-                                window.location.href = `order_details.php?reference=${data.referenceNumber}`;
-                            } else {
-                                alert(data.message);
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                            alert('Failed to place order. Please try again.');
-                        });
-                } else {
-                    alert('No products selected for order.');
-                }
-            });
-
-            // Add event listeners to checkboxes
+            // Attach event listeners to checkboxes
             checkboxes.forEach((checkbox) => {
                 checkbox.addEventListener('change', updateOrderSummary);
             });
@@ -240,6 +155,5 @@ if (isset($_GET['remove'])) {
             updateOrderSummary();
         });
     </script>
-
 </body>
 </html>

@@ -209,7 +209,7 @@ $result = $conn->query($sql);
                             <p>₱${price.toFixed(2)} x ${quantity} = ₱${(price * quantity).toFixed(2)}</p>
                         </div>
                         <div class="order-item-actions">
-                            <button class="remove-item-btn" data-index="${index}" data-id="${id}" data-quantity="${quantity}">Remove</button>
+                            <button class="remove-item-btn" data-index="${index}" data-id="${id}" data-quantity="${quantity}"><i class="fa-solid fa-x"></i></button>
                         </div>
                     `;
                     orderList.appendChild(orderItem);

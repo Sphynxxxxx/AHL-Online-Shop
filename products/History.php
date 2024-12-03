@@ -8,6 +8,18 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Order History</title>
+    <link rel="stylesheet" href="assets\history.css">
+</head>
+<body>
+<?php
+
 // Get the logged-in user's email
 $userEmail = $_SESSION['email'];
 
@@ -106,5 +118,6 @@ while ($order = $resultOrders->fetch_assoc()) {
 // Close connections
 $stmt->close();
 $conn->close();
-
 ?>
+</body>
+</html>
