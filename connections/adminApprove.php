@@ -80,9 +80,9 @@ $declined_result = $conn->query("SELECT * FROM customers WHERE status = 'decline
 </head>
 <body>
 
-    <a href="../admin.php" class="sidebar-link">
-        <i class="fa-solid fa-house icon"></i>
-    </a>
+    <div class="back-button-container">
+        <a href="..\admin.php" class="back-button"><i class="fa-solid fa-house"></i></a>
+    </div>
 
     <h2>Admin Approval</h2>
     <div class="container">

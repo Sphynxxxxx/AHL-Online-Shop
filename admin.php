@@ -16,7 +16,7 @@
 
     <!-- Main Contentqwq -->
     <div class="main-content">
-        <h1>Welcome to Admin Dashboard</h1>
+        <h1>Welcome to AHL Online Shop Admin Dashboard</h1>
         <p>Here you can manage products, customers, and approvals.</p>
 
         
@@ -38,15 +38,6 @@
             </div>
         </div>
 
-        
-        <div class="help-tips">
-            <h2>Quick Tips to Get Started</h2>
-            <ul>
-                <li>Make sure to review all pending approvals in the "Approvals" section.</li>
-                <li>Click on the "Products" section to start managing your product listings.</li>
-                <li>For customer support, visit the "Settings" page for contact information.</li>
-                <li>Review User information and approve or decline registrations promptly.</li>
-            </ul>
         </div>
     </div>
 

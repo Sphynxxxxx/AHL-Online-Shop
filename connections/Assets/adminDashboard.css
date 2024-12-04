@@ -11,7 +11,7 @@ body {
 }
 .main-content h1 {
     font-size: 2.5em;
-    color: #34495e;
+    color: black;
 }
 .main-content p {
     font-size: 1.2em;
@@ -42,7 +42,7 @@ body {
     margin-bottom: 20px;
 }
 .card .btn {
-    background-color: #3498db;
+    background-color: black;
     color: white;
     text-decoration: none;
     padding: 10px 20px;

@@ -77,6 +77,7 @@ body {
   top: 0;
   left: 0;
   height: 100%;
+  z-index: 10;
 }
 
 
@@ -451,10 +452,159 @@ flex: 1;
 margin: 5px 0;
 }
 
+.find-similar-btn {
+  display: none;
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  width: 100px !important;
+  transform: translateX(-50%);
+  padding: 3px 3px !important;
+  background-color: #ff0000 !important; 
+  color: white !important;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.find-similar-btn:hover {
+  background-color: #eb5c5c !important; 
+}
+
+.item {
+  position: relative;
+}
+
+.item:hover .find-similar-btn {
+  display: block;
+}
+
+
+.similar-products-container {
+  display: none;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.similar-products-container .item {
+  width: 200px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+
 
 
 
 /* for mobile responsiveness */
+@media screen and (max-width: 1024px) {
+  body {
+    flex-direction: column;
+  }
+
+  .container {
+    flex-direction: column;
+  }
+
+  .logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .logo img {
+    width: 80px; /* Reduced size for smaller screens */
+  }
+
+  .logo-text {
+    margin-left: 0;
+    text-align: center;
+  }
+
+  #search-box {
+    width: 80%; /* Make search box wider */
+    margin: 10px auto;
+  }
+
+  .sidebar {
+    width: 50px; /* Narrow sidebar for smaller screen */
+    padding: 15px;
+  }
+
+  .sidebar ul li {
+    font-size: 18px; /* Smaller font size in sidebar */
+  }
+
+  .sidebar ul li a {
+    font-size: 22px; /* Smaller icon links */
+  }
+
+  .menu-categories {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .menu-categories button {
+    width: 100%; /* Make buttons fit the width */
+    text-align: left;
+    padding: 10px;
+  }
+
+  .menu-items {
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .item {
+    width: 90%; /* Make items take up most of the container's width */
+    margin: 10px auto;
+    max-width: 250px; /* Limit the width */
+  }
+
+  .order-summary {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .main-content {
+    padding: 20px;
+    width: 100%; /* Ensure content doesn't overflow */
+  }
+
+  .remove-item-btn {
+    font-size: 16px; /* Smaller button font size */
+  }
+
+  .quantity-control {
+    width: 100%; /* Full-width quantity controls */
+    justify-content: space-between;
+  }
+
+  .place-order {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* For small screens, adjust modal width */
+  .modal-content {
+    width: 90%;
+  }
+
+  .order-item {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .order-item-image {
+    margin-bottom: 10px;
+  }
+}
+
+/* For smaller screens (mobile) */
 @media screen and (max-width: 768px) {
   body {
     flex-direction: column;
@@ -510,6 +660,7 @@ margin: 5px 0;
   }
 }
 
+/* For very small screens (mobile) */
 @media screen and (max-width: 480px) {
   .sidebar {
     padding: 10px;
@@ -531,3 +682,93 @@ margin: 5px 0;
     padding: 10px;
   }
 }
+
+
+
+
+
+
+@media screen and (max-width: 1024px) {
+  .sidebar {
+    width: 60px; 
+    padding: 15px;
+    align-items: flex-start;
+  }
+
+  .sidebar ul li {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .sidebar ul li a {
+    font-size: 20px; 
+  }
+
+  .item {
+    width: 180px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .sidebar ul li {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .sidebar ul li a {
+    font-size: 22px;
+  }
+
+  .sidebar ul li.active {
+    background-color: #218838;
+    color: white;
+  }
+
+  .item {
+    width: 45%;
+    max-width: 45%;
+    margin: 10px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .sidebar ul li {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .sidebar ul li a {
+    font-size: 18px;
+  }
+
+  .sidebar ul li a:hover {
+    transform: scale(1); 
+  }
+
+  .item {
+    width: 90%;
+    max-width: 90%;
+    margin: 10px auto;
+  }
+
+  .item img {
+    height: 150px;
+  }
+  
+}
+

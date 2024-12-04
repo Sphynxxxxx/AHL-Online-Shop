@@ -126,25 +126,28 @@ $result = $conn->query($sql);
               $outOfStockLabel = $availableQuantity <= 0 ? '<div class="out-of-stock-label">Out of Stock</div>' : '';
               ?>
               <div class="item <?php echo $outOfStockClass; ?>" 
-                  data-id="<?php echo $row['product_id']; ?>" 
-                  data-category="<?php echo $row['category']; ?>" 
-                  data-name="<?php echo $productName; ?>" 
-                  data-price="<?php echo $price; ?>" 
-                  data-quantity="<?php echo $availableQuantity; ?>">
-                  <?php echo $outOfStockLabel; ?>
-                  <img src="product_pics/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='product_pics/default_image.jpg';">
-                  <p><strong>Category:</strong> <?php echo $category; ?></p>
-                  <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
-                  <h3 class="item-price" style="color: red;">₱<?php echo $price; ?></h3>
-                  <p><strong>Available:</strong> <?php echo $availableQuantity; ?></p>
-                  <div class="quantity-control">
-                      <button class="minus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>-</button>
-                      <span class="quantity">0</span>
-                      <button class="plus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>+</button>
-                      <button class="rent-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Place Order</button>
-                      <button class="add-to-cart-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Add to Cart</button>
-                  </div>
-              </div>
+                    data-id="<?php echo $row['product_id']; ?>" 
+                    data-category="<?php echo $row['category']; ?>" 
+                    data-name="<?php echo $productName; ?>" 
+                    data-price="<?php echo $price; ?>" 
+                    data-quantity="<?php echo $availableQuantity; ?>">
+                    <?php echo $outOfStockLabel; ?>
+                    <img src="product_pics/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='product_pics/default_image.jpg';">
+                    <p><strong>Category:</strong> <?php echo $category; ?></p>
+                    <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
+                    <h3 class="item-price" style="color: red;">₱<?php echo $price; ?></h3>
+                    <p><strong>Available:</strong> <?php echo $availableQuantity; ?></p>
+                    <div class="quantity-control">
+                        <button class="minus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>-</button>
+                        <span class="quantity">0</span>
+                        <button class="plus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>+</button>
+                        <button class="rent-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Place Order</button>
+                        <button class="add-to-cart-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Add to Cart</button>
+                        <button class="find-similar-btn">Find Similar</button>
+
+                    </div>
+             </div>
+
 
               <?php
           }
@@ -331,7 +334,6 @@ $result = $conn->query($sql);
                 });
             });
 
-
             // Handle quantity adjustment buttons
             document.querySelectorAll('.minus-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
@@ -419,8 +421,37 @@ $result = $conn->query($sql);
                 orderSummary.style.display = 'none'; // Hide the order summary
             });
 
-            
+            // Add the "Find Similar" button on hover
+            document.querySelectorAll('.item').forEach(item => {
+                const findSimilarBtn = document.createElement('button');
+                findSimilarBtn.textContent = "Find Similar";
+                findSimilarBtn.classList.add('find-similar-btn');
+                item.appendChild(findSimilarBtn);
+
+                // Show the "Find Similar" button on hover
+                item.addEventListener('mouseenter', () => {
+                    findSimilarBtn.style.display = 'block';
+                });
+
+                // Hide the "Find Similar" button when not hovered
+                item.addEventListener('mouseleave', () => {
+                    findSimilarBtn.style.display = 'none';
+                });
+
+                // Add the event listener to find products of the same category when clicked
+                findSimilarBtn.addEventListener('click', () => {
+                    const category = item.dataset.category;
+                    menuItems.forEach(item => {
+                        if (item.dataset.category === category) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
         });
+
 
 
 
