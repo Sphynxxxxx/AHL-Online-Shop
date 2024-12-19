@@ -1,7 +1,7 @@
 <?php
 @include 'config.php';
 
-// Approve lender
+// Approve reg
 if (isset($_GET['approve'])) {
     $id = intval($_GET['approve']);
     $stmt = $conn->prepare("UPDATE customers SET status = 'approved' WHERE id = ?");
@@ -75,33 +75,36 @@ $declined_result = $conn->query("SELECT * FROM customers WHERE status = 'decline
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Approval</title>
-    <link rel="stylesheet" href="Assets/adminApproval.css?v=1.0">
+    <link rel="stylesheet" href="Assets/adminApproval.css?v=1.1">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-
     <div class="back-button-container">
         <a href="..\admin.php" class="back-button"><i class="fa-solid fa-house"></i></a>
     </div>
 
-    <h2>Admin Approval</h2>
+    <h2>Admin Approval Panel</h2>
     <div class="container">
 
         <!-- Pending Users -->
-        <div class="table">
+        <div class="table pending">
             <h2>Pending Registrations</h2>
             <?php if ($pending_result && $pending_result->num_rows > 0): ?>
                 <ul>
                     <?php while ($row = $pending_result->fetch_assoc()): ?>
                         <li>
-                            <?php echo htmlspecialchars($row['customer_name']); ?> - 
-                            <?php echo htmlspecialchars($row['contact_number']); ?> - 
-                            <?php echo htmlspecialchars($row['address']); ?> - 
-                            <?php echo htmlspecialchars($row['email']); ?>
-                            <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
-                            <a href="?approve=<?php echo $row['id']; ?>">Approve</a> | 
-                            <a href="?decline=<?php echo $row['id']; ?>">Decline</a> |
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
+                            <div class="info">
+                                <strong><?php echo htmlspecialchars($row['customer_name']); ?></strong><br>
+                                <span>Contact: <?php echo htmlspecialchars($row['contact_number']); ?></span><br>
+                                <span>Address: <?php echo htmlspecialchars($row['address']); ?></span><br>
+                                <span>Email: <?php echo htmlspecialchars($row['email']); ?></span>
+                            </div>
+                            <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="User Image">
+                            <div class="actions">
+                                <a href="?approve=<?php echo $row['id']; ?>" class="approve">Approve</a>
+                                <a href="?decline=<?php echo $row['id']; ?>" class="decline">Decline</a>
+                                <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?');" class="delete">Delete</a>
+                            </div>
                         </li>
                     <?php endwhile; ?>
                 </ul>
@@ -111,18 +114,22 @@ $declined_result = $conn->query("SELECT * FROM customers WHERE status = 'decline
         </div>
 
         <!-- Approved Users -->
-        <div class="table">
+        <div class="table approved">
             <h2>Verified Registrations</h2>
             <?php if ($approved_result && $approved_result->num_rows > 0): ?>
                 <ul>
                     <?php while ($row = $approved_result->fetch_assoc()): ?>
                         <li>
-                            <?php echo htmlspecialchars($row['customer_name']); ?> - 
-                            <?php echo htmlspecialchars($row['contact_number']); ?> - 
-                            <?php echo htmlspecialchars($row['address']); ?> - 
-                            <?php echo htmlspecialchars($row['email']); ?>
-                            <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
+                            <div class="info">
+                                <strong><?php echo htmlspecialchars($row['customer_name']); ?></strong><br>
+                                <span>Contact: <?php echo htmlspecialchars($row['contact_number']); ?></span><br>
+                                <span>Address: <?php echo htmlspecialchars($row['address']); ?></span><br>
+                                <span>Email: <?php echo htmlspecialchars($row['email']); ?></span>
+                            </div>
+                            <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="User Image">
+                            <div class="actions">
+                                <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?');" class="delete">Delete</a>
+                            </div>
                         </li>
                     <?php endwhile; ?>
                 </ul>
@@ -132,18 +139,22 @@ $declined_result = $conn->query("SELECT * FROM customers WHERE status = 'decline
         </div>
 
         <!-- Declined Users -->
-        <div class="table">
+        <div class="table declined">
             <h2>Declined Registrations</h2>
             <?php if ($declined_result && $declined_result->num_rows > 0): ?>
                 <ul>
                     <?php while ($row = $declined_result->fetch_assoc()): ?>
                         <li>
-                            <?php echo htmlspecialchars($row['customer_name']); ?> - 
-                            <?php echo htmlspecialchars($row['contact_number']); ?> - 
-                            <?php echo htmlspecialchars($row['address']); ?> - 
-                            <?php echo htmlspecialchars($row['email']); ?>
-                            <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
+                            <div class="info">
+                                <strong><?php echo htmlspecialchars($row['customer_name']); ?></strong><br>
+                                <span>Contact: <?php echo htmlspecialchars($row['contact_number']); ?></span><br>
+                                <span>Address: <?php echo htmlspecialchars($row['address']); ?></span><br>
+                                <span>Email: <?php echo htmlspecialchars($row['email']); ?></span>
+                            </div>
+                            <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="User Image">
+                            <div class="actions">
+                                <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?');" class="delete">Delete</a>
+                            </div>
                         </li>
                     <?php endwhile; ?>
                 </ul>
@@ -154,7 +165,6 @@ $declined_result = $conn->query("SELECT * FROM customers WHERE status = 'decline
 
     </div>
 
-    <?php $conn->close(); ?>
-
 </body>
 </html>
+

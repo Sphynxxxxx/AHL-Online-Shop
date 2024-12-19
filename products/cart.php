@@ -29,7 +29,7 @@ $customer_id = $rowCustomer['id'];
 
 // Fetch the cart items for the logged-in customer
 $sql = "
-    SELECT c.id, p.product_name, p.price, p.image, c.quantity, (p.price * c.quantity) AS total_price
+    SELECT c.id, c.product_id, p.product_name, p.price, p.image, c.quantity, (p.price * c.quantity) AS total_price
     FROM carts c
     JOIN products p ON c.product_id = p.product_id
     WHERE c.customer_id = ?
@@ -80,7 +80,7 @@ if (isset($_GET['remove'])) {
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td>
-                                <input type="checkbox" name="checkout_items[]" value="<?php echo $row['id']; ?>" class="select-checkbox">
+                                <input type="checkbox" name="checkout_items[]" value="<?php echo $row['product_id']; ?>" class="select-checkbox">
                             </td>
                             <td>
                                 <div class="product-details">
@@ -105,18 +105,14 @@ if (isset($_GET['remove'])) {
                 <p id="summary-items">Total Items: 0</p>
                 <p id="summary-subtotal">Subtotal: ₱0.00</p>
                 <p id="summary-total">Total Price: ₱0.00</p>
-                <button class="place-order">Check Out</button>
+                <button type="button" class="place-order">Check Out</button>
             </div>
-        
         </form>
-
     <?php else: ?>
         <p>Your cart is empty.</p>
     <?php endif; ?>
 
-
     <?php
-    // Close the statement and connection
     $stmt->close();
     $conn->close();
     ?>
@@ -129,7 +125,6 @@ if (isset($_GET['remove'])) {
             const summarySubtotal = document.getElementById('summary-subtotal');
             const summaryTotal = document.getElementById('summary-total');
 
-            // Function to prepare selected items and calculate the total
             function getSelectedItems() {
                 const selectedItems = [];
                 let subtotal = 0;
@@ -140,20 +135,19 @@ if (isset($_GET['remove'])) {
                         const row = checkbox.closest('tr');
                         const quantity = parseInt(row.querySelector('.quantity-input').value, 10);
                         const price = parseFloat(row.querySelector('td:nth-child(4)').textContent.replace('₱', '').replace(',', ''));
-                        const totalPrice = price * quantity;
+                        const productId = parseInt(checkbox.value);
 
                         selectedItems.push({
-                            product_id: parseInt(checkbox.value),
+                            product_id: productId,
                             quantity: quantity,
                             price: price,
                         });
 
-                        subtotal += totalPrice;
+                        subtotal += price * quantity;
                         totalQuantity += quantity;
                     }
                 });
 
-                // Update the order summary in the UI
                 summaryItems.textContent = `Total Items: ${totalQuantity}`;
                 summarySubtotal.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
                 summaryTotal.textContent = `Total Price: ₱${subtotal.toFixed(2)}`;
@@ -161,31 +155,36 @@ if (isset($_GET['remove'])) {
                 return { selectedItems, subtotal };
             }
 
-            // Checkout button event listener
             placeOrderButton.addEventListener('click', () => {
                 const { selectedItems, subtotal } = getSelectedItems();
-                
                 if (selectedItems.length === 0) {
-                    alert('Please add items to your order.');
+                    alert('Please select items to proceed.');
                     return;
                 }
 
-                // Send order data to the server
-                fetch('saveOrder2.php', {
+                const orderItems = selectedItems.map(item => ({
+                    id: item.product_id,
+                    quantity: item.quantity,
+                    price: item.price / item.quantity 
+                }));
+
+                fetch('saveOrder.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        orderDetails: selectedItems
+                        orderDetails: orderItems,
+                        deliveryMethod: 'pickup' 
                     }),
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.href = 'order_confirmation.php';
+                        alert(`Order placed successfully!`);
+                        window.location.href = 'order_details.php';
                     } else {
-                        alert(data.message);
+                        alert(data.message || 'An error occurred while placing the order.');
                     }
                 })
                 .catch(error => {
@@ -194,17 +193,12 @@ if (isset($_GET['remove'])) {
                 });
             });
 
-            // Event listener for checkboxes to update summary dynamically
             checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function () {
-                    getSelectedItems(); // Update summary when checkbox is clicked
-                });
+                checkbox.addEventListener('change', getSelectedItems);
             });
 
-            // Initial update of summary
             getSelectedItems();
         });
-
     </script>
 </body>
 </html>

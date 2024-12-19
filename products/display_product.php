@@ -2,9 +2,7 @@
 session_start();
 require_once 'cart.php';
 
-// Fetch product details (this would typically come from a database)
 $product_id = $_GET['product_id'] ?? null;
-// Fetch product details logic here
 $product = [
     'product_id' => $product_id,
     'name' => 'Sample Product',
@@ -49,7 +47,6 @@ $product = [
                 success: function(response) {
                     if (response.success) {
                         alert(response.message);
-                        // Optionally refresh cart or update UI
                     } else {
                         alert(response.message);
                     }

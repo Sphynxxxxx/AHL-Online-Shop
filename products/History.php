@@ -21,10 +21,8 @@ if (!isset($_SESSION['email'])) {
 <body>
 <?php
 
-// Get the logged-in user's email
 $userEmail = $_SESSION['email'];
 
-// Query to get the customer ID based on email
 $sqlCustomer = "SELECT id FROM customers WHERE email = ?";
 $stmt = $conn->prepare($sqlCustomer);
 $stmt->bind_param("s", $userEmail);
@@ -116,7 +114,6 @@ while ($order = $resultOrders->fetch_assoc()) {
     echo "<hr>";
 }
 
-// Close connections
 $stmt->close();
 $conn->close();
 ?>

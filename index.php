@@ -26,7 +26,7 @@
                 <h2>Register New Account</h2>
                 <img src="connections\Assets\images\logo.png" alt="" width = "200" height = "200">
                 <br>
-                <input type="text" id="register-name" placeholder="Name" required>
+                <input type="text" id="register-name" placeholder="Full Name" required>
                 <input type="number" id="register-contact" placeholder="Contact Number" required>
                 <input type="text" id="register-address" placeholder="Address" required>
                 <input type="text" id="register-email" placeholder="Email" required>
@@ -48,6 +48,8 @@
             </form>
         </div>
     </div>
+
+
 
     <script>
         // Global variables

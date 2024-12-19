@@ -196,7 +196,7 @@ if (isset($message)) {
 
 <div class="back-button-container">
     <a href="../admin.php" class="back-button"><i class="fa-solid fa-house"></i></a>
-</div>
+
 
 <div class="container">
     <!-- Add Product Form -->

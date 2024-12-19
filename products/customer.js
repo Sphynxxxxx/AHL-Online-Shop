@@ -36,7 +36,6 @@
             var productId = this.getAttribute('data-product-id');
             var quantity = document.getElementById('quantity').value;
 
-            // Send the data to the server using AJAX
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'add_to_cart.php', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -73,15 +72,12 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Success: show a message or update the cart count
                         alert('Product added to cart!');
                     } else {
-                        // Failure: show an error message
                         alert('Failed to add product to cart: ' + data.message);
                     }
                 })
                 .catch(error => {
-                    // Handle any network or server errors
                     console.error('Error adding product to cart:', error);
                     alert('An error occurred. Please try again later.');
                 });
@@ -101,7 +97,7 @@
     // Display the cart items in a section of the page
     function displayCartItems(cartItems) {
         const cartContainer = document.querySelector('.cart-items-container');
-        cartContainer.innerHTML = '';  // Clear current cart items
+        cartContainer.innerHTML = '';  
 
         if (cartItems.length > 0) {
             let cartHTML = '<table><thead><tr><th>Product</th><th>Quantity</th><th>Price</th><th>Total</th></tr></thead><tbody>';
@@ -129,5 +125,17 @@
     });
       
     
+
+    document.querySelectorAll('.rent-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const orderSummary = document.querySelector('.order-summary');
+            orderSummary.style.display = 'block'; 
+        });
+    });
+
+    document.querySelector('.close-summary-btn').addEventListener('click', () => {
+        const orderSummary = document.querySelector('.order-summary');
+        orderSummary.style.display = 'none'; 
+    });
 
     

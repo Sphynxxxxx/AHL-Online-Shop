@@ -78,6 +78,9 @@
             justify-content: center;
             gap: 30px;
             margin-top: 50px;
+            display: flex; /* This makes the container use flexbox */
+            flex-direction: row; /* Aligns items horizontally (left to right) */
+
         }
 
         .team-member {
@@ -85,16 +88,15 @@
             color: #F6EEE0;
             padding: 20px;
             border-radius: 10px;
-            width: 250px;
+            width: auto;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .team-member img {
-            width: 100%;
-            border-radius: 50%;
-            max-width: 150px;
-            margin-bottom: 20px;
+            width: auto;        
+            height: auto;      
+            object-fit: cover; 
         }
 
         .team-member h3 {
@@ -102,6 +104,14 @@
             font-size: 1.5em;
         }
 
+        .team-member h3.container {
+            display: flex;
+            flex-direction: row; 
+            gap: 20px;
+        }
+
+        
+        
         .team-member p {
             font-size: 1em;
             margin-bottom: 10px;
@@ -143,25 +153,15 @@
 
         <div class="team">
             <div class="team-member">
-                <img src="" alt="Team Member 1">
-                <h3>Name1</h3>
-                <p>Position</p>
-                <p>Small Info About your self</p>
+                <img src="assets\462558993_917452890106026_820639423286175926_n.png" alt="Team Member 1">
+                <div class="team">
+                    <div class="team-member">Member 1</div>
+                    <div class="team-member">Member 2</div>
+                    <div class="team-member">Member 3</div>
+                </div>
+
             </div>
 
-            <div class="team-member">
-                <img src="" alt="Team Member 2">
-                <h3>Name1</h3>
-                <p>Position</p>
-                <p>Small Info About your self</p>
-            </div>
-
-            <div class="team-member">
-                <img src="" alt="Team Member 3">
-                <h3>Name1</h3>
-                <p>Position</p>
-                <p>Small info About your self</p>
-            </div>
         </div>
     </section>
 

@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const summaryItems = document.getElementById('summary-items');
     const summarySubtotal = document.getElementById('summary-subtotal');
     const summaryTotal = document.getElementById('summary-total');
-    const deliveryMethodSelect = document.getElementById('delivery-method'); // Assuming there's a dropdown for delivery method
+    const deliveryMethodSelect = document.getElementById('delivery-method'); 
 
     // Function to prepare selected items and calculate the total
     function getSelectedItems() {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Get the selected delivery method from the dropdown
-        const deliveryMethod = deliveryMethodSelect ? deliveryMethodSelect.value : 'pickup'; // Default to 'pickup' if no selection
+        const deliveryMethod = deliveryMethodSelect ? deliveryMethodSelect.value : 'pickup';
 
         // Send order data to the server
         fetch('saveOrder2.php', {

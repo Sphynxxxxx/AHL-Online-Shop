@@ -38,6 +38,7 @@ if (!$select) {
         <a href="products.php" class="back-button"><i class="fa-solid fa-house"></i></a>
     </div>
     <div class="product-display">
+        <h1>Manages Record</h1>
         <table class="product-display-table">
             <thead>
                 <tr>

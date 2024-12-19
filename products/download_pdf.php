@@ -3,7 +3,6 @@ session_start();
 include '../connections/config.php';
 require_once('../connections/vendor/tcpdf/tcpdf.php');
 
-// Check if user is logged in
 if (!isset($_SESSION['email'])) {
     header("Location: customer.php");
     exit();

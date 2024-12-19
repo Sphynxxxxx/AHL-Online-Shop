@@ -49,6 +49,7 @@ $sql = "SELECT
             created_at 
         FROM products";
 $result = $conn->query($sql);
+
 ?>
 
 <!DOCTYPE html>
@@ -60,7 +61,6 @@ $result = $conn->query($sql);
   <link rel="stylesheet" href="../connections/Assets/customer.css?v=1.0">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* Add your custom styles here */
   </style>
 </head>
 <body>
@@ -86,14 +86,23 @@ $result = $conn->query($sql);
     <!-- Main Content -->
     <div class="main-content">
       <header>
-        <div class="logo">
-          <img src="../connections/Assets/images/logo.png" alt="Farming Tool and Rental System Logo">
-          <div class="logo-text">
-            <h1>AHL Online Store</h1>
-            <p>Welcome, <?php echo htmlspecialchars($_SESSION['customer_name']); ?>!</p>
-          </div>
-        </div>
-        <input id="search-box" type="text" placeholder="Search Product here...">
+            <div class="logo">
+            <img src="../connections/Assets/images/logo.png" alt="Farming Tool and Rental System Logo">
+            <div class="logo-text">
+                <h1>AHL Online Store</h1>
+                <p>Welcome, <?php echo htmlspecialchars($_SESSION['customer_name']); ?>!</p>
+            </div>
+            </div>
+            <div class="header-container">
+                <div class="search-and-notification">
+                    <input id="search-box" type="text" placeholder="Search Product here...">
+                    <div class="notification-bell">
+                        <a href="notifications.php" style="position: relative; display: inline-block;">
+                            <i class="fa-solid fa-bell" style="font-size: 24px; color: #2F5233;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
       </header>
 
       <!-- Categories Buttons -->
@@ -147,8 +156,6 @@ $result = $conn->query($sql);
 
                     </div>
              </div>
-
-
               <?php
           }
       } else {
@@ -157,6 +164,14 @@ $result = $conn->query($sql);
       ?>
     </div>
   </div>
+
+  <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modal-product-container">
+            </div>
+        </div>
+ </div>
 
   <!-- Order Summary -->
    
@@ -229,7 +244,6 @@ $result = $conn->query($sql);
                         const productId = event.target.dataset.id;
                         const removedQuantity = parseInt(event.target.dataset.quantity);
 
-                        // Remove item from the array
                         orderItems.splice(index, 1);
 
                         // Reset product quantity in the main list
@@ -276,7 +290,6 @@ $result = $conn->query($sql);
                 button.addEventListener('click', function() {
                     const selectedCategory = this.dataset.category;
 
-                    // Remove active class from all buttons
                     categoryButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
 
@@ -343,6 +356,15 @@ $result = $conn->query($sql);
                     if (currentQuantity > 0) {
                         quantityElement.textContent = currentQuantity - 1;
                     }
+
+                    // Enable the plus button again when the quantity is below the maximum stock
+                    const itemElement = event.target.closest('.item');
+                    const plusButton = itemElement.querySelector('.plus-btn');
+                    const availableQuantity = parseInt(itemElement.dataset.quantity);
+
+                    if (currentQuantity - 1 < availableQuantity) {
+                        plusButton.removeAttribute('disabled');
+                    }
                 });
             });
 
@@ -363,6 +385,7 @@ $result = $conn->query($sql);
                     }
                 });
             });
+
 
             // Re-enable the plus button if the quantity is reduced below the available stock
             document.querySelectorAll('.quantity').forEach(quantityElement => {
@@ -385,7 +408,6 @@ $result = $conn->query($sql);
                     return;
                 }
 
-                // Send order data to the server
                 fetch('saveOrder.php', {
                     method: 'POST',
                     headers: {
@@ -398,6 +420,46 @@ $result = $conn->query($sql);
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        fetch('fetchUpdatedQuantities.php')
+                            .then(response => response.json())
+                            .then(updatedQuantities => {
+                                updatedQuantities.forEach(item => {
+                                    const productElement = document.querySelector(`.item[data-id="${item.id}"]`);
+                                    if (productElement) {
+                                        productElement.dataset.quantity = item.availableQuantity;
+                                        const quantityDisplay = productElement.querySelector('.available-quantity');
+                                        if (quantityDisplay) {
+                                            quantityDisplay.textContent = `Available: ${item.availableQuantity}`;
+                                        }
+
+                                        // Disable plus button if the product is out of stock
+                                        const plusButton = productElement.querySelector('.plus-btn');
+                                        if (item.availableQuantity <= 0) {
+                                            plusButton.setAttribute('disabled', 'true');
+                                            productElement.classList.add('out-of-stock');
+
+                                            const outOfStockLabel = document.createElement('div');
+                                            outOfStockLabel.className = 'out-of-stock-label';
+                                            outOfStockLabel.textContent = 'Out of Stock';
+                                            productElement.prepend(outOfStockLabel);
+                                        } else {
+                                            plusButton.removeAttribute('disabled');
+                                            productElement.classList.remove('out-of-stock');
+                                            const existingLabel = productElement.querySelector('.out-of-stock-label');
+                                            if (existingLabel) existingLabel.remove();
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error fetching updated quantities:', error);
+                            });
+
+                        // Clear the order summary
+                        orderItems = [];
+                        updateOrderSummary();
+
+                        alert('Order placed successfully!');
                         window.location.href = 'order_details.php';
                     } else {
                         alert(data.message);
@@ -409,17 +471,6 @@ $result = $conn->query($sql);
                 });
             });
 
-            document.querySelectorAll('.rent-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const orderSummary = document.querySelector('.order-summary');
-                    orderSummary.style.display = 'block'; // Show the order summary
-                });
-            });
-
-            document.querySelector('.close-summary-btn').addEventListener('click', () => {
-                const orderSummary = document.querySelector('.order-summary');
-                orderSummary.style.display = 'none'; // Hide the order summary
-            });
 
             // Add the "Find Similar" button on hover
             document.querySelectorAll('.item').forEach(item => {
@@ -450,6 +501,7 @@ $result = $conn->query($sql);
                     });
                 });
             });
+
         });
 
 

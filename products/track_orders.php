@@ -7,24 +7,23 @@ $database = 'ahl_user';
 
 $conn = new mysqli($host, $username, $password, $database);
 
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// SQL query to retrieve data from the database
 $sql = "
     SELECT 
         p.image AS product_image,
         p.product_name,
         c.customer_name AS customer_name,
         od.price,  
-        od.shippingfee,
+        od.quantity,
         c.address,
         c.contact_number,
         o.order_date,
         o.delivery_method,
-        o.reference_number
+        o.reference_number,
+        o.status
     FROM 
         order_details od
     JOIN 
@@ -39,7 +38,6 @@ $sql = "
 
 $result = $conn->query($sql);
 
-// Check if query executed successfully
 if (!$result) {
     die("Error executing query: " . $conn->error);
 }
@@ -50,7 +48,8 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>Track Orders</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,19 +75,21 @@ if (!$result) {
             text-decoration: none;
         }
 
-        button {
+        .back-button {
+            text-decoration: none;
+            color: #000000;
             padding: 10px 15px;
-            font-size: 16px;
-            background-color: black;
-            color: white;
-            border: none;
             border-radius: 5px;
-            cursor: pointer;
+            font-size: 30px;
             transition: background-color 0.3s;
         }
 
-        button:hover {
-            background-color: #007bff;
+        .back-button i {
+            margin-right: 5px;
+        }
+
+        .back-button:hover {
+            color: #0056b3;
         }
 
         .order-table {
@@ -128,7 +129,47 @@ if (!$result) {
             vertical-align: middle;
         }
 
-        /* Responsive Styling */
+        .delete-btn {
+            color: red;
+            border: none;
+            background-color: transparent ;
+            font-size: 20px;
+        }
+
+        .delete-btn:hover {
+            color: darkred;
+        }
+
+
+        .ready-to-pick-up-btn {
+            background-color: green;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .ready-to-pick-up-btn:hover {
+            background-color: darkgreen;
+        }
+
+        .cancel-btn {
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background-color: darkred;
+        }
+
         @media (max-width: 768px) {
             .order-table th, .order-table td {
                 font-size: 12px;
@@ -165,10 +206,9 @@ if (!$result) {
     <div class="main-content">
         <header>
             <!-- Back button -->
-            <a href="../admin.php">
-                <button type="button">Back</button>
-            </a>
+            <a href="..\admin.php" class="back-button"><i class="fa-solid fa-house"></i></a>
         </header>
+        <h1>Track Orders</h1>
 
         <?php
         if ($result->num_rows > 0) {
@@ -177,16 +217,19 @@ if (!$result) {
             <table class='order-table'>
                 <thead>
                     <tr>
+                        <th>Actions</th> <!-- Added for the delete icon -->
                         <th>Product Image</th>
                         <th>Product Name</th>
                         <th>Customer Name</th>
                         <th>Price</th>
-                        <th>Shipping Fee</th>
+                        <th>Quantity</th>
                         <th>Address</th>
                         <th>Contact Number</th>
                         <th>Order Date</th>
                         <th>Delivery Method</th>
                         <th>Reference Number</th>
+                        <th>Status</th> <!-- Added Status column -->
+                        <th>Actions</th> <!-- Updated column for the action buttons -->
                     </tr>
                 </thead>
                 <tbody>
@@ -194,18 +237,36 @@ if (!$result) {
 
             // Fetch and display rows
             while ($row = $result->fetch_assoc()) {
+                $status = ucfirst(str_replace('_', ' ', $row['status'])); // Convert status to a readable format
                 echo "
                 <tr>
+                    <td>
+                        <!-- Trash icon for deleting an order -->
+                        <form action='delete_order.php' method='POST' style='display:inline;'>
+                            <input type='hidden' name='order_id' value='{$row['reference_number']}'>
+                            <button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure you want to delete this order?\")'>
+                                <i class='fa-solid fa-trash'></i>
+                            </button>
+                        </form>
+                    </td>
                     <td><img src='product_pics/{$row['product_image']}' alt='{$row['product_name']}' class='product-img' onerror=\"this.src='uploaded_img/default_image.jpg';\"></td>
                     <td>{$row['product_name']}</td>
                     <td>{$row['customer_name']}</td>
                     <td>₱" . number_format($row['price'], 2) . "</td>
-                    <td>₱" . number_format($row['shippingfee'], 2) . "</td>
+                    <td>" . number_format($row['quantity']) . "</td>
                     <td>{$row['address']}</td>
                     <td>{$row['contact_number']}</td>
                     <td>{$row['order_date']}</td>
                     <td>" . ucfirst($row['delivery_method']) . "</td>
                     <td>{$row['reference_number']}</td>
+                    <td>{$status}</td> <!-- Display order status -->
+                    <td>
+                        <form action='update_order_status.php' method='POST'>
+                            <input type='hidden' name='order_id' value='{$row['reference_number']}'>
+                            <button type='submit' name='status' value='ready_to_pick_up' class='ready-to-pick-up-btn' onclick='return confirm(\"Are you sure you want to mark this order as ready to pick up?\")'>Ready to Pick Up</button>
+                            <button type='submit' name='status' value='canceled' class='cancel-btn' onclick='return confirm(\"Are you sure you want to cancel this order?\")'>Cancel</button>
+                        </form>
+                    </td>
                 </tr>
                 ";
             }
@@ -216,10 +277,4 @@ if (!$result) {
         }
 
         $conn->close();
-        ?>
-
-    </div>
-</div>
-
-</body>
-</html>
+        

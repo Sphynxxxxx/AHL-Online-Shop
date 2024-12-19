@@ -29,7 +29,7 @@
             <div class="card">
                 <h3>Orders</h3>
                 <p>Track the orders.</p>
-                <a href="products/delivery.php" class="btn">View Customers</a>
+                <a href="products/track_orders.php" class="btn">View Orders</a>
             </div>
             <div class="card">
                 <h3>Approvals</h3>

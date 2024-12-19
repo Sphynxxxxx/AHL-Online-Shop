@@ -4,30 +4,25 @@ $username = "root";
 $password = "";
 $dbname = "ahl_user";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
 if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => "Database connection failed: " . $conn->connect_error]));
 }
 
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Sanitize and validate input data
     $name = trim($conn->real_escape_string($_POST['name']));
     $contact_number = trim($conn->real_escape_string($_POST['contact']));
     $address = trim($conn->real_escape_string($_POST['address']));
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
 
-    // Validate email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => "Invalid email format."]);
         exit();
     }
 
-    // Check if email already exists
     $email_check_query = $conn->prepare("SELECT email FROM customers WHERE email = ?");
     if (!$email_check_query) {
         http_response_code(500);
@@ -39,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email_check_query->store_result();
 
     if ($email_check_query->num_rows > 0) {
-        http_response_code(409); // Conflict
+        http_response_code(409); 
         echo json_encode(['success' => false, 'message' => "This email is already registered."]);
         $email_check_query->close();
         exit();
@@ -73,16 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         }
 
-        // Sanitize file name and set the upload path
         $imagesName = preg_replace("/[^a-zA-Z0-9\._-]/", "", $imagesName);
         $imagePath = 'uploads_img/' . uniqid() . '_' . $imagesName;
 
-        // Ensure the uploads directory exists
         if (!file_exists('uploads_img')) {
-            mkdir('uploads_img', 0777, true); // Create the directory if it doesn't exist
+            mkdir('uploads_img', 0777, true); 
         }
 
-        // Move the uploaded file to the desired location
         if (!move_uploaded_file($imagesTmpPath, $imagePath)) {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => "Failed to upload image."]);
@@ -94,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    // Prepare the SQL statement to insert the user into the database
     $stmt = $conn->prepare("INSERT INTO customers (customer_name, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
     if (!$stmt) {
         http_response_code(500);
@@ -103,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     $stmt->bind_param("ssssss", $name, $contact_number, $address, $email, $password, $imagePath);
 
-    // Execute the query and return the response
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => "Registration successful! Awaiting approval."]);
     } else {
@@ -111,10 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(['success' => false, 'message' => "Error: " . $stmt->error]);
     }
 
-    // Close the statement
     $stmt->close();
 }
 
-// Close the database connection
 $conn->close();
 ?>
